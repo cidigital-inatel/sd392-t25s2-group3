@@ -25,7 +25,7 @@
 | | ESTUDANTE | ÁREA DE ATUAÇÃO |
 | :---: | :--- | :--- |
 | 1 | [Elivander Pereira]()| Orientador / Instrutor |
-| 2 | [Hyago Vieira]() | Líder técnico |
+| 2 | [Bruno Nassar]() | Líder técnico |
 | 3 | []() | Desenvolvimento de Hardware |
 
 
