@@ -1,171 +1,78 @@
-**SUMÁRIO**
-
-[**1 IDENTIFICAÇÃO	3**](#identificação)
-
-[**2 RELEVÂNCIA DO TEMA (CONTEXTUALIZAÇÃO)	4**](#relevância-do-tema-\(contextualização\))
-
-[2.1 Pesquisa Sobre o Problema e Justificativas	4](#pesquisa-sobre-o-problema-e-justificativas)
-
-[Criptografia e Função Hash Criptográfica	4](#criptografia-e-função-hash-criptográfica)
-
-[Criptografia Simétrica	4](#criptografia-simétrica)
-
-[Criptografia Assimétrica	5](#criptografia-assimétrica)
-
-[Fundamentos Matemáticos do ML-KEM	6](#fundamentos-matemáticos-do-ml-kem)
-
-[Definição geral do algoritmo ML-KEM	7](#definição-geral-do-algoritmo-ml-kem)
-
-[2.2 Desafios Tecnológicos	8](#desafios-tecnológicos)
-
-[2.3 Trabalhos Existentes	9](#trabalhos-existentes)
-
-[2.4 Referências Bibliográficas	12](#referências-bibliográficas)
-
-[**3 OBJETO PROPOSTO	14**](#objeto-proposto)
-
-[3.1 Resumo	14](#resumo)
-
-[3.2 Objetivo Geral	14](#objetivo-geral)
-
-[3.3 Objetivos Específicos	15](#objetivos-específicos)
-
-[Arquitetura	15](#arquitetura)
-
-[Diferenciais e Boas Práticas	25](#diferenciais-e-boas-práticas)
-
-[3.4 Referências Bibliográficas	26](#referências-bibliográficas-1)
-
-[**4 RESPONSABILIDADES	27**](#responsabilidades)
-
-[**5 METODOLOGIA DE TRABALHO	28**](#metodologia-de-trabalho)
-
-[5.1 Plano de Atividades	28](#plano-de-atividades)
-
-[Ao Longo de Todas as Fases	28](#ao-longo-de-todas-as-fases)
-
-[Fase 1: Desenvolvimento Unitário	28](#fase-1:-desenvolvimento-unitário)
-
-[Fase 1: Desenvolvimento UVM	29](#fase-1:-desenvolvimento-uvm)
-
-[Fase 2: Integração e Verificação do ML-KEM	30](#fase-2:-integração-e-verificação-do-ml-kem)
-
-[Fase 3: Síntese e Análise do Hardware	30](#fase-3:-síntese-e-análise-do-hardware)
-
-[Fase 4: Documentação e Apresentação	31](#fase-4:-documentação-e-apresentação)
-
-[5.2 Repositório de Trabalho	31](#repositório-de-trabalho)
-
-[**6 RESULTADOS ESPERADOS	31**](#resultados-esperados)
-
-[6.1 Entregáveis e critérios de aceitação	31](#entregáveis-e-critérios-de-aceitação)
-
-[Fase 1 \- Desenvolvimento Unitário	31](#fase-1---desenvolvimento-unitário)
-
-[Fase 1 \- Desenvolvimento UVM	33](#fase-1---desenvolvimento-uvm)
-
-[Fase 2 \- Integração e Verificação do ML-KEM	34](#fase-2---integração-e-verificação-do-ml-kem)
-
-[Fase 3 \- Síntese e Análise do Hardware	35](#fase-3---síntese-e-análise-do-hardware)
-
-[Fase 4 \- Documentação e Apresentação	36](#fase-4---documentação-e-apresentação)
-
-[6.2 Ganhos esperados	37](#ganhos-esperados)
-
-[**7 CRONOGRAMA DE EXECUÇÃO	38**](#cronograma-de-execução)
-
-[7.1 Cronograma com Detalhamento Descritivo de Atividades	38](#cronograma-com-detalhamento-descritivo-de-atividades)
-
-[7.2 Visão Temporal do Cronograma de Execução	44](#visão-temporal-do-cronograma-de-execução)
-
-[**8 PLANOS DE CONTINGÊNCIAS	48**](#planos-de-contingências)
-
-[8.1 Gerenciamento de Mudanças no Escopo	48](#gerenciamento-de-mudanças-no-escopo)
-
-[8.2 Mapeamento da Execução e Interdependências	48](#mapeamento-da-execução-e-interdependências)
-
-[8.3 Controle de Alterações no Cronograma	49](#controle-de-alterações-no-cronograma)
-
-[8.4 Mapeamento de Riscos e Plano de Ação	50](#mapeamento-de-riscos-e-plano-de-ação)
-
-1. # **IDENTIFICAÇÃO** {#identificação}
+# 1. IDENTIFICAÇÃO
 
 Este Plano de Trabalho descreve a proposta para o presente projeto de trabalho de conclusão de curso (TCC) que será executado pelos alunos da segunda turma do programa CI Digital no polo Inatel, conforme descritos na tabela de identificação a seguir:
 
-| Título do Projeto | *Acelerador para Criptografia Pós-Quântica ML-KEM (FIPS 203\) Auditável com Interface AXI4:  Projeto RTL, Cobertura UVM com Vetores NIST e Síntese Lógica (AMD Zynq ZCU102 ou ZC702, ou Altera Cyclone V SOC Dev Kit)* |
-| :---- | :---- |
-| **Duração de Execução** | 6 meses |
-| **Mês de Início**  | Setembro de 2026 |
-| **Mês de Fim** | Fevereiro de 2027 |
-| **Tópico Principal** | Projeto de Circuitos Digitais |
-| **Subáreas** | Criptografia (ML-KEM); Funções Hash (RNG, Keccak) |
-| **Membros** | Bruno Nassar Gouvêa Pereira Guilherme Henrique Bernardes Paulino Jonatan Arriel Reseck Neves Luís Henrique Azevedo Mateus Nassar Gouvêa Pereira |
-| **Colaboradores** | André Francisco Ribeiro Bezerra Bruno Bacelar Possato Jean Wellington De Souza |
-| **Orientador** | Dr. Elivander Judas Tadeu Pereira |
+| Título do Projeto       | *Acelerador para Criptografia Pós-Quântica ML-KEM (FIPS 203\) Auditável com Interface AXI4:  Projeto RTL, Cobertura UVM com Vetores NIST e Síntese Lógica (AMD Zynq ZCU102 ou ZC702, ou Altera Cyclone V SOC Dev Kit)* |
+| :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Duração de Execução** | 6 meses                                                                                                                                                                                                                |
+| **Mês de Início**       | Setembro de 2026                                                                                                                                                                                                       |
+| **Mês de Fim**          | Fevereiro de 2027                                                                                                                                                                                                      |
+| **Tópico Principal**    | Projeto de Circuitos Digitais                                                                                                                                                                                          |
+| **Subáreas**            | Criptografia (ML-KEM); Funções Hash (RNG, Keccak)                                                                                                                                                                      |
+| **Membros**             | Bruno Nassar Gouvêa Pereira;<br>Guilherme Henrique Bernardes Paulino;<br>Jonatan Arriel Reseck Neves;<br>Luís Henrique Azevedo;<br>Mateus Nassar Gouvêa Pereira.                                                       |
+| **Colaboradores**       | André Francisco Ribeiro Bezerra;<br>Bruno Bacelar Possato;<br>Jean Wellington De Souza.                                                                                                                                |
+| **Orientador**          | Dr. Elivander Judas Tadeu Pereira                                                                                                                                                                                      |
 
-2. # **RELEVÂNCIA DO TEMA (CONTEXTUALIZAÇÃO)** {#relevância-do-tema-(contextualização)}
+# 2. RELEVÂNCIA DO TEMA (CONTEXTUALIZAÇÃO)
 
-O presente plano de trabalho propõe a implementação de um acelerador (hardware) para o algoritmo criptográfico pós-quântico (*PQC \- Post-Quantum Cryptography*) **ML-KEM** (Module-Lattice- Based Key-Encapsulation Mechanism).
+O presente plano de trabalho propõe a implementação de um acelerador (hardware) para o algoritmo criptográfico pós-quântico (*PQC - Post-Quantum Cryptography*) **ML-KEM** (Module-Lattice- Based Key-Encapsulation Mechanism).
 
-1. ## **Pesquisa Sobre o Problema e Justificativas** {#pesquisa-sobre-o-problema-e-justificativas}
+## 2.1. Pesquisa Sobre o Problema e Justificativas
 
-Esta seção apresenta uma visão concisa sobre: os fundamentos da criptografia; os algoritmos mais comuns da atualidade; o atual cenário de *eventual* transição para computadores quânticos que justifica a adoção de novas tecnologias criptográficas (*PQC \- Post-Quantum Cryptography*), como o ML-KEM; os fundamentos matemáticos por trás do ML-KEM; e, finalmente, a definição geral do algoritmo ML-KEM.
+Esta seção apresenta uma visão concisa sobre: os fundamentos da criptografia; os algoritmos mais comuns da atualidade; o atual cenário de *eventual* transição para computadores quânticos que justifica a adoção de novas tecnologias criptográficas (*PQC - Post-Quantum Cryptography*), como o ML-KEM; os fundamentos matemáticos por trás do ML-KEM; e, finalmente, a definição geral do algoritmo ML-KEM.
 
-### **Criptografia e Função Hash Criptográfica** {#criptografia-e-função-hash-criptográfica}
+### 2.1.1. Criptografia e Função Hash Criptográfica
 
-Criptografia é o conjunto de técnicas que transforma uma mensagem legível (plaintext) em um resultado protegido (ciphertext) usando um algoritmo e uma chave. A finalidade típica é confidencialidade; quando combinada com autenticação, também permite detectar alterações nos dados e confirmar a origem esperada. O princípio de projeto é que o algoritmo pode ser público: o segredo deve estar na chave [\[HAC-1996\]](#bookmark=id.j4ts7a24aqlv).
+**Criptografia** é o conjunto de técnicas que transforma uma mensagem legível (plaintext) em um resultado protegido (ciphertext) usando um algoritmo e uma chave. A finalidade típica é confidencialidade; quando combinada com autenticação, também permite detectar alterações nos dados e confirmar a origem esperada. O princípio de projeto é que o algoritmo pode ser público: o segredo deve estar na chave \[**HAC-1996**\].
 
-Função hash criptográfica mapeia uma entrada de tamanho arbitrário para um resumo (digest) de tamanho fixo. Ela deve tornar impraticável encontrar: uma entrada que produza um digest dado (pré-imagem), outra entrada com o mesmo digest (segunda pré-imagem), ou quaisquer duas entradas que colidam. É importante ressaltar que hash não é cifragem: trata-se de uma operação irreversível, sem chave de decifragem nem recuperação da entrada; suas principais finalidades são verificar integridade de dados, identificar dados, e gerar dados pseudoaleatoriamente (hash de um *seed*). SHA-2 e SHA-3 são famílias padronizadas pelo NIST [\[FIPS-180-4\]](#bookmark=id.s7j8jscmvehv), [\[FIPS-202\]](#bookmark=id.gk1xex5dncsb).
+**Função hash criptográfica** mapeia uma entrada de tamanho arbitrário para um resumo (digest) de tamanho fixo. Ela deve tornar impraticável encontrar: uma entrada que produza um digest dado (pré-imagem), outra entrada com o mesmo digest (segunda pré-imagem), ou quaisquer duas entradas que colidam. É importante ressaltar que hash não é cifragem: trata-se de uma operação irreversível, sem chave de decifragem nem recuperação da entrada; suas principais finalidades são verificar integridade de dados, identificar dados, e gerar dados pseudoaleatoriamente (hash de um *seed*). SHA-2 e SHA-3 são famílias padronizadas pelo NIST \[**FIPS-180-4**\], \[**FIPS-202**\].
 
-### **Criptografia Simétrica** {#criptografia-simétrica}
+### 2.1.2. Criptografia Simétrica
 
-Conceito: Na criptografia simétrica, remetente e destinatário usam a mesma chave secreta para cifrar e decifrar. É eficiente, mas cria o problema operacional de ter que distribuir tal chave sem expô-la [\[HAC-1996\]](#bookmark=id.j4ts7a24aqlv).
+**Conceito**: Na criptografia simétrica, remetente e destinatário usam a mesma chave secreta para cifrar e decifrar. É eficiente, mas cria o problema operacional de ter que distribuir tal chave sem expô-la \[**HAC-1996**\].
 
-Uso para cifrar dados: Devido à sua eficiência, a criptografia simétrica é geralmente usada para proteger o volume de dados transmitidos: as partes definem uma chave secreta compartilhada e a usam para criptografar a mensagem. Geralmente, usa-se o mecanismo AES-GCM para tal (que utiliza cifras de bloco AES-128, AES-192 ou AES-256, operando sobre sobre dados fixos de 128 bits e usando chaves de 128, 192 ou 256 bits) [\[FIPS-197\]](#bookmark=id.nibh5wdsd4no).
+**Uso para cifrar dados**: Devido à sua eficiência, a criptografia simétrica é geralmente usada para proteger o volume de dados transmitidos: as partes definem uma chave secreta compartilhada e a usam para criptografar a mensagem. Geralmente, usa-se o mecanismo AES-GCM para tal (que utiliza cifras de bloco AES-128, AES-192 ou AES-256, operando sobre sobre dados fixos de 128 bits e usando chaves de 128, 192 ou 256 bits) \[**FIPS-197**\].
 
-AES e resistência quântica: É consenso que o **Algoritmo de Shor** (algoritmo quântico) não quebra a criptografia AES (em tese, poderia aplicar busca de Grover para acelerar a busca exaustiva de chave, mas isso não significa uma quebra estrutural do algoritmo AES). Portanto, o NIST definiu os algoritmos AES-128/192/256 como referências de níveis de segurança para criptografias pós-quânticas (PQC) [\[Grover-1996\]](#bookmark=id.f99k0394m12w), [\[FIPS-203\]](#bookmark=id.cw41gr29yaxf).
+**AES e resistência quântica**: É consenso que o **Algoritmo de Shor** (algoritmo quântico) não quebra a criptografia AES (em tese, poderia aplicar busca de Grover para acelerar a busca exaustiva de chave, mas isso não significa uma quebra estrutural do algoritmo AES). Portanto, o NIST definiu os algoritmos AES-128/192/256 como referências de níveis de segurança para criptografias pós-quânticas (PQC) \[**Grover-1996**\], \[**FIPS-203**\].
 
-### **Criptografia Assimétrica** {#criptografia-assimétrica}
+### 2.1.3. Criptografia Assimétrica
 
-Conceito: Neste modelo de criptografia, cada entidade possui uma chave pública, distribuível, e uma chave privada, que não pode sair do seu domínio (no exemplo mais básico, o remetente cifra o dado usando a chave pública do destinatário; o destinatário decifra o mesmo dado usando sua chave privada). O que uma parte faz com a chave pública não revela a contraparte privada sob a hipótese matemática do esquema. Isso resolve a distribuição inicial de segredo, mas ao preço de maior uso de recursos do que a criptografia simétrica [\[HAC-1996\]](#bookmark=id.j4ts7a24aqlv).
+**Conceito**: Neste modelo de criptografia, cada entidade possui uma chave pública, distribuível, e uma chave privada, que não pode sair do seu domínio (no exemplo mais básico, o remetente cifra o dado usando a chave pública do destinatário; o destinatário decifra o mesmo dado usando sua chave privada). O que uma parte faz com a chave pública não revela a contraparte privada sob a hipótese matemática do esquema. Isso resolve a distribuição inicial de segredo, mas ao preço de maior uso de recursos do que a criptografia simétrica \[**HAC-1996**\].
 
-Uso como KEM (Key-Encapsulation Mechanism): KEM é o mecanismo utilizado para proteger a chave simétrica compartilhada entre as partes (chave que cifra o volume de dados). Neste mecanismo, o remetente usa a chave pública do destinatário em Encaps, obtendo ciphertext da chave simétrica secreta; o destinatário utiliza sua chave privada em Decaps para extrair de ciphertext a mesma chave secreta. Em seguida, essa chave alimenta o AES ou outra cifra simétrica para obter os dados propriamente ditos. Portanto, KEM não é a cifra de alto volume (dados) [\[SP-800-227\]](#bookmark=id.paajbqz6wwr0).
+**Uso como KEM (Key-Encapsulation Mechanism)**: KEM é o mecanismo utilizado para proteger a chave simétrica compartilhada entre as partes (chave que cifra o volume de dados). Neste mecanismo, o remetente usa a chave pública do destinatário em Encaps, obtendo ciphertext da chave simétrica secreta; o destinatário utiliza sua chave privada em Decaps para extrair de ciphertext a mesma chave secreta. Em seguida, essa chave alimenta o AES ou outra cifra simétrica para obter os dados propriamente ditos. Portanto, KEM não é a cifra de alto volume (dados) \[**SP-800-227**\].
 
-RSA/ECC e o problema pós-quântico: Os principais algoritmos assimétricos utilizados atualmente são o RSA (Rivest-Shamir-Adleman) e o ECC (Elliptic Curve Cryptography). RSA fundamenta-se na dificuldade de se fatorar inteiros $N$ grandes (ou seja, dado que $N\ =\ pq$, é computacionalmente difícil recuperar os números primos $p$ e $q$). Já o ECC fundamenta-se na dificuldade de logaritmo discreto em curvas elípticas. O problema de tais criptografias é que o **Algoritmo Quântico de Shor resolve fatoração e logaritmos discretos em tempo polinomial**, comprometendo suas premissas de segurança [\[Shor-1997\]](#bookmark=id.n90ndinhkpn5), [\[FIPS-203\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cw41gr29yaxf). E é justamente tal fato que **justifica o esforço em substituir tais criptografias: atualmente, não há algoritmo quântico conhecido equivalente capaz de resolver, por exemplo, o problema de Reticulado \+ Module-LWE utilizado pela criptografia PQC assimétrica ML-KEM** [\[FIPS-203\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cw41gr29yaxf) (algoritmo criptográfico que será o objeto proposto pelo presente plano de trabalho).
+**RSA/ECC e o problema pós-quântico**: Os principais algoritmos assimétricos utilizados atualmente são o RSA (Rivest-Shamir-Adleman) e o ECC (Elliptic Curve Cryptography). RSA fundamenta-se na dificuldade de se fatorar inteiros $N$ grandes (ou seja, dado que $N = pq$, é computacionalmente difícil recuperar os números primos $p$ e $q$). Já o ECC fundamenta-se na dificuldade de logaritmo discreto em curvas elípticas. O problema de tais criptografias é que o **Algoritmo Quântico de Shor resolve fatoração e logaritmos discretos em tempo polinomial**, comprometendo suas premissas de segurança \[**Shor-1997**\], \[**FIPS-203**\]. E é justamente tal fato que **justifica o esforço em substituir tais criptografias: atualmente, não há algoritmo quântico conhecido equivalente capaz de resolver, por exemplo, o problema de Reticulado + Module-LWE utilizado pela criptografia PQC assimétrica ML-KEM** \[**FIPS-203**\] (algoritmo criptográfico que será o objeto proposto pelo presente plano de trabalho).
 
-### **Fundamentos Matemáticos do ML-KEM** {#fundamentos-matemáticos-do-ml-kem}
+### 2.1.4. Fundamentos Matemáticos do ML-KEM
 
-Aritmética Modular: é a matemática dos restos de divisão (por exemplo, $17\ mod\ 5=2$). Trata-se de uma **aritmética circular**: em módulo $q$, todo e qualquer número inteiro $X\ ≥\ 0$ terá um correspondente no conjunto circular $\{0,\ 1,\ ...,\ q-1\}$.
-
+**Aritmética Modular**: é a matemática dos restos de divisão (por exemplo, $17\ mod\ 5=2$). Trata-se de uma **aritmética circular**: em módulo $q$, todo e qualquer número inteiro $X \geq 0$ terá um correspondente no conjunto circular $\{0,\ 1,\ ...,\ q-1\}$.
 * Tal conjunto circular também é chamado de **anel quociente ${ℤ}_{q}{\ }$** (ou anel quociente de **$ℤ/qℤ$**).
 
-Somar, subtrair e multiplicar usando apenas este conjunto circular mantém valores compactos e permite construir estruturas algébricas eficientes. No ML-KEM, **coeficientes polinomiais** são manipulados via **conjunto circular produzido por módulo $q=3329$** [\[FIPS-203, §4.1\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cw41gr29yaxf).
+Somar, subtrair e multiplicar usando apenas este conjunto circular mantém valores compactos e permite construir estruturas algébricas eficientes. No ML-KEM, **coeficientes polinomiais** são manipulados via **conjunto circular produzido por módulo $q=3329$** \[**FIPS-203, §4.1**\].
 
-Polinômios, Vetores e Matrizes: Polinômio é qualquer expressão do tipo $(a₀+a₁X+a₂X²+…)$. Exemplos de representações genéricas:
-
-* Conjunto de polinômios (anel de polinômios) com coeficientes inteiros: $ℤ[X]$;  
+**Polinômios, Vetores e Matrizes**: Polinômio é qualquer expressão do tipo $(a_0+a_1X+a_2X^{2}+…)$. Exemplos de representações genéricas:
+* Conjunto de polinômios (anel de polinômios) com coeficientes inteiros: $ℤ[X]$;
 * Conjunto de polinômios (anel de polinômios) com coeficientes reais: $ℝ[X]$.
 
-O ML-KEM trabalha no anel de polinômios ${R}_{q}\ =\ {ℤ}_{q}[X]/(X²⁵⁶+1)$: resto da divisão entre ${ℤ}_{q}[X]$ e $(X²⁵⁶+1)$. Ou seja, em termos práticos, o polinômio só poderá ter 256 coeficientes, todos módulo 3329, e a técnica de substituição aritmética $X²⁵⁶=\ -1$ define como reduzir termos de grau a partir de 256 [\[FIPS-203, §4.1\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cw41gr29yaxf).
+O ML-KEM trabalha no anel de polinômios ${R}_{q}\ =\ {ℤ}_{q}[X]/(X^{256}+1)$: resto da divisão entre ${ℤ}_{q}[X]$ e $(X^{256}+1)$. Ou seja, em termos práticos, o polinômio só poderá ter 256 coeficientes, todos módulo 3329, e a técnica de substituição aritmética $X^{256}=\ -1$ define como reduzir termos de grau a partir de 256 \[**FIPS-203, §4.1**\].
 
 Em um ML-KEM implementado em hardware, um polinômio é representado através de um vetor de coeficientes $\{...,\ a2,\ a1,\ a0\}$. Portanto, um vetor de polinômios é uma matriz desses vetores de coeficientes; uma matriz de polinômios é uma matriz multidimensional desses vetores de coeficientes.
 
-Reticulados geométricos com valores inteiros: Um **reticulado (lattice) com valores inteiros** é um conjunto discreto de pontos no espaço euclidiano formado por todas as **combinações lineares inteiras de um conjunto de vetores-base** linearmente independentes. Assim, cada ponto do reticulado é obtido multiplicando cada vetor-base por um coeficiente inteiro e somando os resultados. Geometricamente, isso produz uma estrutura periódica de pontos em uma ou mais dimensões. [\[Peikert-2016\]](#bookmark=id.qmrlybotqw3y)
+**Reticulados geométricos com valores inteiros**: Um **reticulado (lattice) com valores inteiros** é um conjunto discreto de pontos no espaço euclidiano formado por todas as **combinações lineares inteiras de um conjunto de vetores-base** linearmente independentes. Assim, cada ponto do reticulado é obtido multiplicando cada vetor-base por um coeficiente inteiro e somando os resultados. Geometricamente, isso produz uma estrutura periódica de pontos em uma ou mais dimensões. \[**Peikert-2016**\]
 
-![][image1]
+![][resources/images/lattice-shah-2019.png]
 
-Figura 1 \- Exemplo de reticulado geométrico bidimensional (2 vetores-base) [\[Shah-2019\]](#bookmark=id.12ba6z22s9ct)
+Figura 1 - Exemplo de reticulado geométrico bidimensional (2 vetores-base) \[**Shah-2019**\]
 
-### **Definição geral do algoritmo ML-KEM** {#definição-geral-do-algoritmo-ml-kem}
+### 2.1.5. Definição geral do algoritmo ML-KEM
 
-O ML-KEM (*Module-Lattice-Based Key-Encapsulation Mechanism*) é um **algoritmo criptográfico assimétrico de encapsulamento de chaves (KEM)** padronizado pela norma **NIST FIPS 203**, publicada em 13 de agosto de 2024\. Tal norma define ML-KEM-512, ML-KEM-768 e ML-KEM-1024, em ordem de maior força de segurança e menor desempenho [\[FIPS-203\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cw41gr29yaxf).
+O ML-KEM (*Module-Lattice-Based Key-Encapsulation Mechanism*) é um **algoritmo criptográfico assimétrico de encapsulamento de chaves (KEM)** padronizado pela norma **NIST FIPS 203**, publicada em 13 de agosto de 2024. Tal norma define ML-KEM-512, ML-KEM-768 e ML-KEM-1024, em ordem de maior força de segurança e menor desempenho \[**FIPS-203**\].
 
-O algoritmo tem como premissa de segurança o problema de **Module-LWE (Learning With Errors) \+ Reticulado** [\[FIPS-203\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cw41gr29yaxf), [\[Peikert-2016\]](#bookmark=id.qmrlybotqw3y):
-
-* No Module-LWE, tem-se a equação polinomial $b\ =\ As\ +e\ (mod\ q)$, conforme regras explicadas nos [fundamentos matemáticos do ML-KEM](#fundamentos-matemáticos-do-ml-kem), onde $b$ é o resultado cifrado (valor publicamente conhecido), $A$ é a chave pública do destinatário (valor publicamente conhecido), $s$ é a chave privada do destinatário (valor publicamente **desconhecido**) e $e$ é um pequeno erro aleatório (valor publicamente **desconhecido**; precisa ser pequeno para que o destinatário consiga recuperar o conteúdo contido em $b$).  
+O algoritmo tem como premissa de segurança o problema de **Module-LWE (Learning With Errors) + Reticulado** \[**FIPS-203**\], \[**Peikert-2016**\]:
+* No Module-LWE, tem-se a equação polinomial $b\ =\ As + e\ (mod\ q)$, conforme regras explicadas nos [fundamentos matemáticos do ML-KEM](#214-fundamentos-matemáticos-do-ml-kem), onde $b$ é o resultado cifrado (valor publicamente conhecido), $A$ é a chave pública do destinatário (valor publicamente conhecido), $s$ é a chave privada do destinatário (valor publicamente **desconhecido**) e $e$ é um pequeno erro aleatório (valor publicamente **desconhecido**; precisa ser pequeno para que o destinatário consiga recuperar o conteúdo contido em $b$).
 * A partir da equação acima, onde $s$ e $e$ são desconhecidos, forma-se um reticulado de 256 dimensões/vetores-base (os coeficientes polinomiais), onde o problema (**premissa de segurança do algoritmo**) é encontrar o ponto exato dentro do reticulado (a chave privada $s$) capaz de recuperar o conteúdo contido em $b$. Atualmente, trata-se de uma tarefa que até mesmo algoritmos quânticos não seriam capazes de resolver em tempo polinomial.
 
-  2. ## **Desafios Tecnológicos** {#desafios-tecnológicos}
+## 2.2. Desafios Tecnológicos
 
 Criptografias pós-quânticas, como o **ML-KEM** e o **ML-DSA**, apresentam requisitos computacionais significativos que envolvem **memória, ciclos de clock, latência, throughput e consumo energético**.
 
@@ -177,81 +84,81 @@ Para essa análise, serão considerados resultados de implementações disponív
 
 A análise também permite identificar quais operações apresentam maior potencial para **aceleração por hardware** e quais componentes podem exercer maior impacto sobre os recursos da FPGA, como **LUTs, flip-flops, BRAMs e DSPs**.
 
-**A Figura 2 apresenta um compilado dos principais requisitos computacionais do ML-KEM-768 e do ML-DSA-65, destacando diferenças em termos de ciclos de clock, latência e throughput.** 
+**A Figura 2 apresenta um compilado dos principais requisitos computacionais do ML-KEM-768 e do ML-DSA-65, destacando diferenças em termos de ciclos de clock, latência e throughput.**
 
-![][image2]
+![][resources/images/desafios-tecnologicos.png]
 
-Figura 2 \- Comparação ilustrativa dos requisitos computacionais de ML-KEM-768 e ML-DSA-65.
+Figura 2 - Comparação ilustrativa dos requisitos computacionais de ML-KEM-768 e ML-DSA-65.
 
-3. ## **Trabalhos Existentes** {#trabalhos-existentes}
+## 2.3. Trabalhos Existentes
 
 Foram analisados trabalhos recentes relacionados à aceleração em hardware de algoritmos de criptografia pós-quântica, com foco no ML-KEM. A análise busca identificar as principais arquiteturas e técnicas utilizadas, como NTT, multiplicação polinomial, processamento paralelo e pipeline, além de comparar métricas como área, frequência, latência e throughput. Com isso, pretende-se compreender o estado da arte e identificar oportunidades para o desenvolvimento do acelerador proposto.
 
-Na proposta apresentada pelos autores em [\[Tsai-2026\]](#bookmark=id.snnsuwh92219), inicialmente são discutidos os avanços da computação quântica e como isto representa uma ameaça à infraestrutura de chave pública atualmente utilizada, citando como principal motivo o algoritmo de Shor que, em um computador quântico suficientemente poderoso, poderia resolver problemas matemáticos nos quais se baseiam sistemas criptográficos de chave pública atuais. O foco não está apenas em estudar ML-KEM, mas sim trazer uma proposta para solucionar o maior problema deste algoritmo \- a multiplicação de polinômios. Segundo os autores, trata-se da operação mais fundamental nos esquemas baseados em reticulados e envolve convolução e aritmética modular, o que a torna uma uma das operações mais intensivas computacionalmente. No artigo os autores citam que uma implementação eficiente da NTT pode melhorar significativamente o desempenho desses algoritmos através de arquitetura interativa, onde várias unidades butterfly executam os estágios da NTT sequencialmente em vários estágios de pipeline. Porém, baseado em trabalhos anteriores, existem limitações para esta implementação: suporte limitado, hardware duplicado, processamento não contínuo e a complexidade do butterfly. Desta forma a contribuição se torna fazer uma única arquitetura NTT/iNTT, totalmente pipeline, utilizando a mesma configuração de butterfly utilizando Radix-2 MDC (Multi-path Delay Commutator) com 8 estágios, processamento de 2 coeficientes por ciclo, pipeline completo, uma única configuração de butterfly \- capaz de suportar o ML-KEM e o ML-DSA.
+Na proposta apresentada pelos autores em \[**Tsai-2026**\], inicialmente são discutidos os avanços da computação quântica e como isto representa uma ameaça à infraestrutura de chave pública atualmente utilizada, citando como principal motivo o algoritmo de Shor que, em um computador quântico suficientemente poderoso, poderia resolver problemas matemáticos nos quais se baseiam sistemas criptográficos de chave pública atuais. O foco não está apenas em estudar ML-KEM, mas sim trazer uma proposta para solucionar o maior problema deste algoritmo - a multiplicação de polinômios. Segundo os autores, trata-se da operação mais fundamental nos esquemas baseados em reticulados e envolve convolução e aritmética modular, o que a torna uma uma das operações mais intensivas computacionalmente. No artigo os autores citam que uma implementação eficiente da NTT pode melhorar significativamente o desempenho desses algoritmos através de arquitetura interativa, onde várias unidades butterfly executam os estágios da NTT sequencialmente em vários estágios de pipeline. Porém, baseado em trabalhos anteriores, existem limitações para esta implementação: suporte limitado, hardware duplicado, processamento não contínuo e a complexidade do butterfly. Desta forma a contribuição se torna fazer uma única arquitetura NTT/iNTT, totalmente pipeline, utilizando a mesma configuração de butterfly utilizando Radix-2 MDC (Multi-path Delay Commutator) com 8 estágios, processamento de 2 coeficientes por ciclo, pipeline completo, uma única configuração de butterfly - capaz de suportar o ML-KEM e o ML-DSA.
 
-![][image3]
+![][resources/images/trabalhos-existentes-1.png]
 
-Figura 3 \- Arquitetura do Radix-2 Cooley-Tukey-only Butterfly (BF2)
+Figura 3 - Arquitetura do Radix-2 Cooley-Tukey-only Butterfly (BF2)
 
-Como resultado, eles implementaram a arquitetura em um AMD Zynq UltraScale+ MPSoC e o resultado foi de 3.821 LUTs, 2.970 FFs, 20 DSPs, 5 BRAMs e 322 MHz de frequência máxima; latência inicial de 130 ciclos; 58 μs para um vetor ML-KEM; 571 Mbps de throughput; Area-Time Product (ATP) de 13.679 para ML-KEM \- que os autores apresentam como melhor que os trabalhos comparados.
+Como resultado, eles implementaram a arquitetura em um AMD Zynq UltraScale+ MPSoC e o resultado foi de 3.821 LUTs, 2.970 FFs, 20 DSPs, 5 BRAMs e 322 MHz de frequência máxima; latência inicial de 130 ciclos; 58 μs para um vetor ML-KEM; 571 Mbps de throughput; Area-Time Product (ATP) de 13.679 para ML-KEM - que os autores apresentam como melhor que os trabalhos comparados.
 
-Em [\[Dam-2026\]](#bookmark=id.vgdy2ln6m01z), os autores propõem um SoC baseado em RISC-V com um acelerador dedicado às operações NTT e INTT utilizadas na multiplicação polinomial do ML-KEM. Os autores identificam que, embora existam diversas implementações de aceleradores em FPGA, ainda são escassas implementações físicas em ASIC e que a comunicação entre CPU, memória e acelerador pode representar um gargalo. Para solucionar esse problema, o acelerador é fortemente acoplado ao processador RISC-V por meio da interface RoCC e de duas instruções customizadas.
+Em \[**Dam-2026**\], os autores propõem um SoC baseado em RISC-V com um acelerador dedicado às operações NTT e INTT utilizadas na multiplicação polinomial do ML-KEM. Os autores identificam que, embora existam diversas implementações de aceleradores em FPGA, ainda são escassas implementações físicas em ASIC e que a comunicação entre CPU, memória e acelerador pode representar um gargalo. Para solucionar esse problema, o acelerador é fortemente acoplado ao processador RISC-V por meio da interface RoCC e de duas instruções customizadas.
 
-![][image4]
+![][resources/images/trabalhos-existentes-2.png]
 
-Figura 4 \- Arquitetura do SoC RISC-V proposto com acelerador NTT. 
+Figura 4 - Arquitetura do SoC RISC-V proposto com acelerador NTT.
 
 A arquitetura utiliza duas Butterfly Units, FIFO e uma unidade de reordenação para executar NTT/INTT de forma eficiente. O sistema foi fabricado em tecnologia CMOS de 180 nm, atingindo 118 MHz, e apresentou speedup de até 14,51 vezes para NTT e 16,75 vezes para INTT, além de melhorias de até 56,5% no processamento completo do ML-KEM.
 
-Di Matteo et al. [\[Tsai-2026\]](#bookmark=id.snnsuwh92219) propuseram o CRYPHTOR, um acelerador de hardware em FPGA para os algoritmos pós-quânticos CRYSTALS-Kyber (ML-KEM) e CRYSTALS-Dilithium (ML-DSA), buscando reduzir o custo computacional e de memória das operações polinomiais por meio de NTT/INTT, unidades aritméticas dedicadas e uma arquitetura de memória unificada. 
+Di Matteo et al. \[**Tsai-2026**\] propuseram o CRYPHTOR, um acelerador de hardware em FPGA para os algoritmos pós-quânticos CRYSTALS-Kyber (ML-KEM) e CRYSTALS-Dilithium (ML-DSA), buscando reduzir o custo computacional e de memória das operações polinomiais por meio de NTT/INTT, unidades aritméticas dedicadas e uma arquitetura de memória unificada.
 
-![][image5]
+![][resources/images/trabalhos-existentes-3.png]
 
-Figura 5 \- Arquitetura de alto nível do acelerador CRYPHTOR.
+Figura 5 - Arquitetura de alto nível do acelerador CRYPHTOR.
 
 O acelerador utiliza interfaces AXI4 Slave e AXI4 Master com DMA, permitindo tanto o controle pelo processador quanto a transferência autônoma de dados. Implementado em uma FPGA Xilinx Zynq UltraScale+ e integrado a sistemas RISC-V, o CRYPHTOR apresentou ganhos de até 221,8× para INTT de Kyber e 300,2× para NTT de Dilithium em relação à execução em software. Como desafio, os autores destacam o aumento do consumo de recursos de hardware, especialmente DSPs, decorrente das operações de multiplicação e redução modular.
 
-| Ref.  | Trabalho  | Principal contribuição  | Limitação / oportunidade  |
-| :---- | :---- | :---- | :---- |
-| [Kundi-2024\]](#bookmark=id.am6938m0joaq) | NTT/iNTT pipeline  | Alto throughput e arquitetura unificada  | Foco concentrado no datapath NTT, sem uma interface AXI4 apresentada como elemento central  |
-| [\[Dam-2026\]](#bookmark=id.vgdy2ln6m01z) | RISC-V \+ NTT  | Integração hardware/software e implementação ASIC  | Utiliza RoCC, específica ao ecossistema RISC-V  |
-| [\[Tsai-2026\]](#bookmark=id.snnsuwh92219) | CRYPHTOR  | AXI4 \+ DMA \+ acelerador PQC  | Maior flexibilidade implica maior utilização de recursos, especialmente DSPs  |
+| Ref.               | Trabalho          | Principal contribuição                            | Limitação / oportunidade                                                                   |
+| :----------------- | :---------------- | :------------------------------------------------ | :----------------------------------------------------------------------------------------- |
+| \[**Kundi-2024**\] | NTT/iNTT pipeline | Alto throughput e arquitetura unificada           | Foco concentrado no datapath NTT, sem uma interface AXI4 apresentada como elemento central |
+| \[**Dam-2026**\]   | RISC-V + NTT      | Integração hardware/software e implementação ASIC | Utiliza RoCC, específica ao ecossistema RISC-V                                             |
+| \[**Tsai-2026**\]  | CRYPHTOR          | AXI4 \+ DMA \+ acelerador PQC                     | Maior flexibilidade implica maior utilização de recursos, especialmente DSPs               |
 
-4. ## **Referências Bibliográficas** {#referências-bibliográficas}
+## 2.4. Referências Bibliográficas
 
-   \[FIPS-203\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Module-Lattice-Based Key-Encapsulation Mechanism Standard. Federal Information Processing Standards Publication (FIPS PUB 203). Gaithersburg, MD: NIST, Aug. 2024\. DOI: 10.6028/NIST.FIPS.203. Disponível em: [https://csrc.nist.gov/pubs/fips/203/final](https://csrc.nist.gov/pubs/fips/203/final). Acesso em: 19 ago. 2026\.
+   \[**FIPS-203**\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Module-Lattice-Based Key-Encapsulation Mechanism Standard. Federal Information Processing Standards Publication (FIPS PUB 203). Gaithersburg, MD: NIST, Aug. 2024. DOI: 10.6028/NIST.FIPS.203. Disponível em: [https://csrc.nist.gov/pubs/fips/203/final](https://csrc.nist.gov/pubs/fips/203/final). Acesso em: 19 ago. 2026.
 
-   \[HAC-1996\]	MENEZES, A.; VAN OORSCHOT, P.; VANSTONE, S. Handbook of Applied Cryptography. Boca Raton: CRC Press, 1996\. Fundamentos de criptografia simétrica, assimétrica e modos de uso. Disponível em: [https://cacr.uwaterloo.ca/hac/](https://cacr.uwaterloo.ca/hac/). Acesso em: 19 ago. 2026\.
+   \[**HAC-1996**\]	MENEZES, A.; VAN OORSCHOT, P.; VANSTONE, S. Handbook of Applied Cryptography. Boca Raton: CRC Press, 1996. Fundamentos de criptografia simétrica, assimétrica e modos de uso. Disponível em: [https://cacr.uwaterloo.ca/hac/](https://cacr.uwaterloo.ca/hac/). Acesso em: 19 ago. 2026.
 
-   \[FIPS-180-4\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Secure Hash Standard (SHS). Federal Information Processing Standards Publication (FIPS PUB 180-4). Gaithersburg, MD: NIST, Aug. 2015\. Definição e uso de funções hash SHA-2. Disponível em: [https://doi.org/10.6028/NIST.FIPS.180-4](https://doi.org/10.6028/NIST.FIPS.180-4). Acesso em: 19 ago. 2026\.
+   \[**FIPS-180-4**\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Secure Hash Standard (SHS). Federal Information Processing Standards Publication (FIPS PUB 180-4). Gaithersburg, MD: NIST, Aug. 2015. Definição e uso de funções hash SHA-2. Disponível em: [https://doi.org/10.6028/NIST.FIPS.180-4](https://doi.org/10.6028/NIST.FIPS.180-4). Acesso em: 19 ago. 2026.
 
-   \[FIPS-202\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions. Federal Information Processing Standards Publication (FIPS PUB 202). Gaithersburg, MD: NIST, Aug. 2015\. Keccak, SHA-3 e SHAKE. Disponível em: [https://doi.org/10.6028/NIST.FIPS.202](https://doi.org/10.6028/NIST.FIPS.202). Acesso em: 19 ago. 2026\.
+   \[**FIPS-202**\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions. Federal Information Processing Standards Publication (FIPS PUB 202). Gaithersburg, MD: NIST, Aug. 2015. Keccak, SHA-3 e SHAKE. Disponível em: [https://doi.org/10.6028/NIST.FIPS.202](https://doi.org/10.6028/NIST.FIPS.202). Acesso em: 19 ago. 2026.
 
-   \[FIPS-197\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Advanced Encryption Standard (AES). Federal Information Processing Standards Publication (FIPS PUB 197-upd1). Gaithersburg, MD: NIST, May 2023\. Especificação de AES-128/192/256. Disponível em: [https://doi.org/10.6028/NIST.FIPS.197-upd1](https://doi.org/10.6028/NIST.FIPS.197-upd1). Acesso em: 19 ago. 2026\.
+   \[**FIPS-197**\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Advanced Encryption Standard (AES). Federal Information Processing Standards Publication (FIPS PUB 197-upd1). Gaithersburg, MD: NIST, May 2023. Especificação de AES-128/192/256. Disponível em: [https://doi.org/10.6028/NIST.FIPS.197-upd1](https://doi.org/10.6028/NIST.FIPS.197-upd1). Acesso em: 19 ago. 2026.
 
-   \[Grover-1996\]	GROVER, L. K. A Fast Quantum Mechanical Algorithm for Database Search. In: ANNUAL ACM SYMPOSIUM ON THEORY OF COMPUTING (STOC), 28., 1996, Philadelphia. **Proceedings...** New York: ACM, 1996\. p. 212–219. Busca quântica e aceleração quadrática idealizada. Disponível em: [https://doi.org/10.1145/237814.237866](https://doi.org/10.1145/237814.237866). Acesso em: 19 ago. 2026\. 
+   \[**Grover-1996**\]	GROVER, L. K. A Fast Quantum Mechanical Algorithm for Database Search. In: ANNUAL ACM SYMPOSIUM ON THEORY OF COMPUTING (STOC), 28., 1996, Philadelphia. **Proceedings...** New York: ACM, 1996. p. 212–219. Busca quântica e aceleração quadrática idealizada. Disponível em: [https://doi.org/10.1145/237814.237866](https://doi.org/10.1145/237814.237866). Acesso em: 19 ago. 2026.
 
-   \[FIPS-204\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Module-Lattice-Based Digital Signature Standard. Federal Information Processing Standards Publication (FIPS PUB 204). Gaithersburg, MD: NIST, Aug. 2024\. Norma ML-KEM: parâmetros, funções internas, KeyGen, Encaps e Decaps. Disponível em: [https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf). Acesso em: 19 ago. 2026\. 
+   \[**FIPS-204**\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Module-Lattice-Based Digital Signature Standard. Federal Information Processing Standards Publication (FIPS PUB 204). Gaithersburg, MD: NIST, Aug. 2024. Norma ML-KEM: parâmetros, funções internas, KeyGen, Encaps e Decaps. Disponível em: [https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.204.pdf). Acesso em: 19 ago. 2026.
 
-   \[Shor-1997\]	SHOR, P. W. Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer. SIAM Journal on Computing, Philadelphia, v. 26, n. 5, p. 1484–1509, 1997\. Algoritmo quântico contra fatoração e logaritmo discreto. Disponível em: [https://doi.org/10.1137/S0097539795293172](https://doi.org/10.1137/S0097539795293172). Acesso em: 19 ago. 2026\.
+   \[**Shor-1997**\]	SHOR, P. W. Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer. SIAM Journal on Computing, Philadelphia, v. 26, n. 5, p. 1484–1509, 1997. Algoritmo quântico contra fatoração e logaritmo discreto. Disponível em: [https://doi.org/10.1137/S0097539795293172](https://doi.org/10.1137/S0097539795293172). Acesso em: 19 ago. 2026.
 
-   \[SP-800-227\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Recommendations for Key-Encapsulation Mechanisms. Special Publication (NIST SP) 800-227. Gaithersburg, MD: NIST, Sep. 2025\. Recomendações de uso e considerações de implementação de KEMs. Disponível em: [https://doi.org/10.6028/NIST.SP.800-227](https://doi.org/10.6028/NIST.SP.800-227). Acesso em: 19 ago. 2026\. 
+   \[**SP-800-227**\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Recommendations for Key-Encapsulation Mechanisms. Special Publication (NIST SP) 800-227. Gaithersburg, MD: NIST, Sep. 2025. Recomendações de uso e considerações de implementação de KEMs. Disponível em: [https://doi.org/10.6028/NIST.SP.800-227](https://doi.org/10.6028/NIST.SP.800-227). Acesso em: 19 ago. 2026.
 
-   \[Kundi-2024\]	KUNDI, D. et al. High-Performance NTT Hardware Accelerator to Support ML-KEM and ML-DSA. In: **ASHES '24: Proceedings of the 2024 ACM Workshop on Attacks and Solutions in Hardware Security**, New York: ACM, Nov. 2024\. Disponível em: [https://doi.org/10.1145/3689644.3691238](https://www.google.com/search?q=https://doi.org/10.1145/3689644.3691238). Acesso em: 17 ago. 2026\. 
+   \[**Kundi-2024**\]	KUNDI, D. et al. High-Performance NTT Hardware Accelerator to Support ML-KEM and ML-DSA. In: **ASHES '24: Proceedings of the 2024 ACM Workshop on Attacks and Solutions in Hardware Security**, New York: ACM, Nov. 2024. Disponível em: [https://doi.org/10.1145/3689644.3691238](https://www.google.com/search?q=https://doi.org/10.1145/3689644.3691238). Acesso em: 17 ago. 2026.
 
-   \[Dam-2026\]	DAM, D.-T.; PHAM, C.-K. Accelerating Post-Quantum Cryptography: A High-Efficiency NTT for ML-KEM on RISC-V. **Electronics**, v. 15, n. 1, 100, 2026\. Disponível em: [https://doi.org/10.3390/electronics15010100](https://doi.org/10.3390/electronics15010100). Acesso em: 17 ago. 2026\. 
+   \[**Dam-2026**\]	DAM, D.-T.; PHAM, C.-K. Accelerating Post-Quantum Cryptography: A High-Efficiency NTT for ML-KEM on RISC-V. **Electronics**, v. 15, n. 1, 100, 2026. Disponível em: [https://doi.org/10.3390/electronics15010100](https://doi.org/10.3390/electronics15010100). Acesso em: 17 ago. 2026.
 
-   \[Tsai-2026\]	TSAI, Y.-C.; LIN, Y.-H.; HWANG, W.-J. An Open Hardware ML-KEM Polynomial Ring Accelerator on Chipyard RISC-V SoC: System-Level Integration and Evaluation. **Electronics**, v. 15, n. 12, 2511, 2026\. Disponível em: [https://doi.org/10.3390/electronics15122511](https://doi.org/10.3390/electronics15122511). Acesso em: 17 ago. 2026\. 
+   \[**Tsai-2026**\]	TSAI, Y.-C.; LIN, Y.-H.; HWANG, W.-J. An Open Hardware ML-KEM Polynomial Ring Accelerator on Chipyard RISC-V SoC: System-Level Integration and Evaluation. **Electronics**, v. 15, n. 12, 2511, 2026. Disponível em: [https://doi.org/10.3390/electronics15122511](https://doi.org/10.3390/electronics15122511). Acesso em: 17 ago. 2026.
 
-   \[Chen-2026\]	CHEN, Y. et al. Lattice-Based Cryptographic Accelerators for the Post-Quantum Era. **Electronics**, v. 15, n. 2, 475, 2026\. Disponível em: [https://doi.org/10.3390/electronics15020475](https://doi.org/10.3390/electronics15020475). Acesso em: 19 ago. 2026\. 
+   \[**Chen-2026**\]	CHEN, Y. et al. Lattice-Based Cryptographic Accelerators for the Post-Quantum Era. **Electronics**, v. 15, n. 2, 475, 2026. Disponível em: [https://doi.org/10.3390/electronics15020475](https://doi.org/10.3390/electronics15020475). Acesso em: 19 ago. 2026.
 
-   \[Sousa-2026\]	DE SOUSA, J. E. et al. QUASAR: Achieving Quantum Readiness for Post-Quantum Cryptography on RISC-V at Minimum Hardware Cost. **Electronics**, v. 15, n. 10, 2154, 2026\. Disponível em: [https://doi.org/10.3390/electronics15102154](https://doi.org/10.3390/electronics15102154). Acesso em: 19 ago. 2026\. 
+   \[**Sousa-2026**\]	DE SOUSA, J. E. et al. QUASAR: Achieving Quantum Readiness for Post-Quantum Cryptography on RISC-V at Minimum Hardware Cost. **Electronics**, v. 15, n. 10, 2154, 2026. Disponível em: [https://doi.org/10.3390/electronics15102154](https://doi.org/10.3390/electronics15102154). Acesso em: 19 ago. 2026.
 
-   \[Mandal-2026\]	MANDAL, P. K. et al. Energy and Performance Evaluation of Post-Quantum Cryptography on Embedded Devices. **Cryptography**, v. 10, n. 4, 55, 2026\. Disponível em: [https://doi.org/10.3390/cryptography10040055](https://www.google.com/search?q=https://doi.org/10.3390/cryptography10040055). Acesso em: 19 ago. 2026\. 
+   \[**Mandal-2026**\]	MANDAL, P. K. et al. Energy and Performance Evaluation of Post-Quantum Cryptography on Embedded Devices. **Cryptography**, v. 10, n. 4, 55, 2026. Disponível em: [https://doi.org/10.3390/cryptography10040055](https://www.google.com/search?q=https://doi.org/10.3390/cryptography10040055). Acesso em: 19 ago. 2026.
 
-   \[Peikert-2016\]	PEIKERT, Chris. A decade of lattice cryptography. Foundations and Trends in Theoretical Computer Science, v. 10, n. 4, p. 283-424, 2016\. DOI: 10.1561/0400000074. Disponível em: [https://web.eecs.umich.edu/\~cpeikert/pubs/lattice-survey.pdf](https://web.eecs.umich.edu/~cpeikert/pubs/lattice-survey.pdf). Acesso em: 31 ago. 2026\.
+   \[**Peikert-2016**\]	PEIKERT, Chris. A decade of lattice cryptography. Foundations and Trends in Theoretical Computer Science, v. 10, n. 4, p. 283-424, 2016. DOI: 10.1561/0400000074. Disponível em: [https://web.eecs.umich.edu/\~cpeikert/pubs/lattice-survey.pdf](https://web.eecs.umich.edu/~cpeikert/pubs/lattice-survey.pdf). Acesso em: 31 ago. 2026.
 
-   \[Shah-2019\]	SHAH, Jalil. Atomic and electronic structures of two-dimensional layers on noble metals. 2019\. Tese (Doutorado em Física) \- Linköping University, Linköping, 2019\. DOI: 10.3384/diss.diva-160075. Disponível em: [http://www.diva-portal.org/smash/record.jsf?pid=diva2:1348325](http://www.diva-portal.org/smash/record.jsf?pid=diva2:1348325). Acesso em: 31 ago. 2026\.
+   \[**Shah-2019**\]	SHAH, Jalil. Atomic and electronic structures of two-dimensional layers on noble metals. 2019. Tese (Doutorado em Física) - Linköping University, Linköping, 2019. DOI: 10.3384/diss.diva-160075. Disponível em: [http://www.diva-portal.org/smash/record.jsf?pid=diva2:1348325](http://www.diva-portal.org/smash/record.jsf?pid=diva2:1348325). Acesso em: 31 ago. 2026.
 
 3. # **OBJETO PROPOSTO** {#objeto-proposto}
 
@@ -269,13 +176,13 @@ Tal acelerador criptográfico poderia ser utilizado por qualquer aplicação que
 
 O objetivo geral é criar um **Acelerador para Criptografia Pós-Quântica ML-KEM (FIPS 203\) Auditável com Interface AXI4**: Projeto RTL, Cobertura UVM com Vetores NIST e Síntese Lógica *(AMD Zynq ZCU102 ou ZC702, ou Altera Cyclone V SOC Dev Kit)*.
 
-* Nível de segurança parametrizável, com valor padrão ML-KEM-768;  
+* Nível de segurança parametrizável, com valor padrão ML-KEM-768;
 * Auditável em 2 sentidos: no sentido de qualidade de código (módulos RTL que correspondem às seções da norma FIPS 203 \+ código UVM modular com scoreboard contendo os vetores de teste do NIST) e no sentido de conter registradores de telemetria/auditoria (CSRs).
 
 O fluxo geral do acelerador pode ser dividido em três etapas [\[FIPS-203, §§6 \- 7\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.cbi9oldjtu9z):
 
-* **Destinatário: KeyGen() → (pk, sk) :** gera matriz pública a partir de uma semente, amostra segredos/ruídos pequenos e produz a chave pública pk e a chave privada sk.  
-* **Remetente: Encaps(pk) → (ct, K) :** escolhe aleatoriedade, cria um ciphertext ct ligado a pk e deriva a chave compartilhada K.  
+* **Destinatário: KeyGen() → (pk, sk) :** gera matriz pública a partir de uma semente, amostra segredos/ruídos pequenos e produz a chave pública pk e a chave privada sk.
+* **Remetente: Encaps(pk) → (ct, K) :** escolhe aleatoriedade, cria um ciphertext ct ligado a pk e deriva a chave compartilhada K.
 * **Destinatário: Decaps(sk, ct) → K' :** usa sk para recuperar a mensagem interna, reencapsula deterministicamente e valida ct. Devolve a mesma K quando o ciphertext é válido.
 
   3. ## **Objetivos Específicos** {#objetivos-específicos}
@@ -284,110 +191,110 @@ O fluxo geral do acelerador pode ser dividido em três etapas [\[FIPS-203, §§6
 
 Em termos de arquitetura, o objetivo é ter um módulo top-level sincronizado por clock e reset assíncrono, expondo uma interface AXI4-Lite Subordinate destinada ao acesso aos CSRs de controle, status e telemetria, e duas interfaces AXI4-Stream: entrada/subordinate (seeds para *KeyGen*, chaves públicas para *Encaps* e *ciphertexts* a serem desencapsulados) e saída/manager (*ciphertexts* gerados no *Encaps* e o segredo compartilhado *K* resultante de *Encaps* ou *Decaps*). Internamente, uma FSM de Controle Central orquestra:
 
-* **Processador NTT / INTT:**  
-  * Função: Responsável pelas transformações Number Theoretic Transform (NTT) e Inverse Number Theoretic Transform (INTT), além das operações aritméticas associadas à multiplicação de polinômios no domínio transformado [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * Fluxo da NTT: O processamento deverá contemplar a leitura dos coeficientes, aplicação das operações de butterfly utilizando os fatores ζ (zetas), multiplicações modulares, reduções e reorganização dos dados entre as diferentes etapas da transformação. Na implementação de referência, a NTT transforma o polinômio da representação normal para a representação no domínio NTT, enquanto a INTT realiza o caminho inverso; a multiplicação propriamente dita é realizada por basemul no domínio transformado [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.wis76nlo2juy). A implementação em hardware analisada explicita esse fluxo por meio de múltiplas etapas ntt\_layer, seguidas de redução modular, basemul\_montgomery e acumulação dos resultados. A NTT é dividida em sete camadas de processamento, com operações de butterfly utilizando diferentes índices de zetas; os dados são divididos em dois fluxos, processados e posteriormente recombinados [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Fluxo da INTT: Na direção inversa, a INTT utiliza sete camadas correspondentes, com inv\_butterfly, recombinação dos fluxos e multiplicação final pelo fator necessário à transformação inversa [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Multiplicação de polinômios: A transformação NTT não constitui, isoladamente, a operação de multiplicação de polinômios. Após a transformação dos polinômios para o domínio NTT, a multiplicação é realizada por meio de basemul, envolvendo as operações aritméticas necessárias entre os coeficientes transformados [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). Nas operações envolvendo vetores ou matrizes de polinômios, os resultados das multiplicações individuais devem ser acumulados para produzir o polinômio resultante. Dessa forma, o processamento deverá contemplar também as operações de acumulação e redução dos resultados intermediários [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y), [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Operações internas: Portanto, o processador deverá ser entendido como um conjunto integrado de NTT/INTT \+ butterfly \+ multiplicação modular \+ redução \+ basemul \+ acumulação \+ controle do fluxo dos coeficientes, e não apenas como uma unidade matemática isolada. O datapath deverá controlar a movimentação dos coeficientes entre as diferentes camadas da transformação, a utilização dos fatores zetas, a separação e recombinação dos fluxos de dados e o encaminhamento dos resultados para as operações subsequentes [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Participação no ML-KEM: No fluxo de KeyGen, a NTT é aplicada aos vetores secretos antes da multiplicação matriz-vetor. Em Encaps, é aplicada ao vetor aleatório utilizado na multiplicação com a matriz pública. Em Decaps, é aplicada ao ciphertext e ao vetor secreto antes da multiplicação necessária para recuperar a mensagem [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).  
-  * Possibilidades de implementação: As estruturas descritas, como butterfly, basemul, multiplicações e reduções modulares, correspondem a uma das formas possíveis de organizar o processamento. A implementação final poderá adotar uma arquitetura diferente para essas operações, desde que mantenha as transformações e operações matemáticas requeridas pelo ML-KEM.   
-* **Motor Keccak:**  
-  * Função: Responsável pela execução das primitivas de hash criptográfico SHA3-256, SHA3-512, SHAKE128 e SHAKE256, utilizadas em diferentes etapas do ML-KEM [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * Permutação Keccak-f\[1600\]: O componente deverá implementar a permutação Keccak-f\[1600\] e fornecer o mecanismo necessário para operações de hash, XOF e PRF. A implementação de hardware analisada utiliza um estado interno de 25 palavras de 64 bits e executa as rodadas da permutação por meio das operações correspondentes às etapas θ, ρ, π, χ e ι, incluindo rotações e aplicação das constantes de rodada [\[FIPS-202\]](#bookmark=id.fpodsz4kgtkf), [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Fluxo de processamento: O fluxo de entrada deverá realizar a inicialização do estado, absorção dos bytes de entrada, aplicação do padding correspondente à função utilizada, execução da permutação e, quando aplicável, squeeze para produzir a quantidade de saída necessária. A operação deverá permitir que o estado interno seja atualizado sucessivamente enquanto os blocos de entrada são absorvidos e, nas operações de saída variável, que novas palavras sejam produzidas durante o squeeze, conforme quantidade de dados exigida na operação [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13), [\[FIPS-202\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.fpodsz4kgtkf).  
-  * Utilização como XOF e PRF: No ML-KEM, o SHAKE128 é utilizado como XOF na expansão da semente para geração da matriz pública, enquanto o SHAKE256 é utilizado como PRF para gerar os dados pseudoaleatórios posteriormente processados pelo CBD [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z). A utilização do SHAKE como XOF permite produzir a quantidade necessária de bytes a partir de uma entrada inicial, enquanto a utilização como PRF permite produzir deterministicamente os dados necessários para a geração dos coeficientes de segredo e ruído [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * Utilização das funções SHA3: As primitivas SHA3-256 e SHA3-512 também são utilizadas em diferentes etapas do fluxo do ML-KEM para derivação e processamento de valores criptográficos [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z). Dessa forma, o motor Keccak deverá ser compartilhado entre as diferentes operações, evitando a necessidade de implementar unidades independentes para cada função criptográfica.  
-  * Organização do bloco: A análise do fluxo em hardware mostra que o mesmo motor pode ser reutilizado para diferentes funções, onde a seleção do tamanho da taxa (rate), a quantidade de dados de entrada e a quantidade de dados produzidos são determinadas pela operação em execução [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13). Dessa forma, o motor deverá disponibilizar ao restante do datapath um fluxo de bytes pseudoaleatórios ou valores derivados, sendo utilizado pelos blocos de geração da matriz, geração de ruído, derivação de valores e demais etapas que dependem das primitivas SHA-3 e SHAKE.  
-  * Organização do processamento: A organização apresentada para o motor Keccak é baseada no fluxo observado nas referências de hardware e serve como uma possibilidade de estruturação do bloco. A arquitetura definitiva poderá explorar outras formas de particionamento, paralelismo ou compartilhamento dos recursos, preservando as primitivas criptográficas necessárias.  
-* **Amostrador CBD (Centered Binomial Distribution):**  
-  * Função: Responsável pela conversão dos bytes pseudoaleatórios produzidos pelo PRF em coeficientes pertencentes à distribuição binomial centrada definida para o ML-KEM  [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), essenciais ao [erro estatístico do Module-LWE](#definição-geral-do-algoritmo-ml-kem).  
-  * Geração dos dados de entrada: O fluxo do componente começa com a recepção dos bytes produzidos pelo SHAKE256 e termina com a geração de um polinômio cujos coeficientes são pequenos e centrados em zero. Os dados recebidos pelo amostrador são produzidos deterministicamente a partir da semente e do nonce utilizados pela operação, permitindo que os mesmos valores sejam reproduzidos quando necessário durante o fluxo criptográfico [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).  
-  * Processamento dos bits: Na implementação de referência, para η=2, quatro bytes são carregados como um valor de 32 bits. Os bits são reorganizados por operações de máscara e deslocamento e, para cada grupo, são calculados dois valores a e b, sendo o coeficiente obtido por a-b [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). Esse processamento transforma o fluxo de bits pseudoaleatórios em coeficientes pertencentes à distribuição definida para o parâmetro correspondente.  
-  * Organização em hardware: A mesma lógica é implementada em hardware pelas unidades cbd2 e cbd3, que recebem os fluxos produzidos pelo SHAKE e produzem diretamente os coeficientes dos polinômios [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13). Assim, o bloco deverá conter, essencialmente, entrada de bytes, agrupamento de bits, extração dos grupos correspondentes, contagem dos bits e subtração, produzindo uma sequência de coeficientes pronta para o datapath NTT.  
-  * Participação no ML-KEM: Esse componente participa principalmente da geração dos vetores secretos e dos termos de erro. Em KeyGen, é utilizado para gerar os vetores de segredo e erro. Em Encaps, para gerar os vetores aleatórios e termos de erro utilizados na construção do ciphertext. Em Decaps, participa novamente quando o valor recuperado precisa ser reencapsulado para a verificação do ciphertext  [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y), [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Estratégia de amostragem: O procedimento descrito representa a estratégia observada nas implementações analisadas para transformar a saída pseudoaleatória em coeficientes da distribuição binomial centrada. Outras organizações internas podem ser empregadas para realizar essa mesma função, sem alterar a distribuição definida para os coeficientes pelo ML-KEM.  
-* **Datapath de Compress/Decompress e Byte(En/De)code:**  
-  * Função: Responsável pela transformação dos polinômios entre sua representação interna e os formatos definidos para chaves, ciphertexts e demais estruturas serializadas [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * ByteEncode e ByteDecode: A primeira função do datapath é realizar a conversão entre bytes e coeficientes, utilizada para reconstruir polinômios a partir de chaves ou ciphertexts e para serializar os resultados. O ByteEncode deverá organizar os coeficientes de acordo com a quantidade de bits definida para a representação correspondente e realizar o empacotamento desses valores em bytes. O ByteDecode deverá executar o processo inverso, extraindo os campos de bits dos bytes recebidos e reconstruindo os coeficientes [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).  
-  * Compress: A segunda função corresponde à compressão dos coeficientes. Na implementação de referência, a compressão realiza inicialmente o mapeamento dos coeficientes para representantes positivos, aplica a quantização definida pelo parâmetro $d$ e, posteriormente, empacota os valores resultantes em bytes [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). A implementação de hardware reproduz esse fluxo por meio de operações de leitura dos coeficientes, normalização modular, quantização e empacotamento dos bits. Para diferentes parâmetros de compressão, são utilizados diferentes números de bits por coeficiente [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Decompress: No caminho inverso, o decompress deverá extrair os campos de bits dos bytes recebidos e reconstruir os coeficientes utilizados pelo datapath aritmético. Esse processo deverá considerar a reconstrução dos valores a partir da representação comprimida e a aplicação das operações necessárias para produzir a representação utilizada pelas operações polinomiais subsequentes [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * Empacotamento e organização dos dados: Esse bloco também deverá controlar a ordem dos coeficientes e o agrupamento dos bits, pois a serialização não consiste simplesmente em copiar palavras de memória. A referência disponível na literatura mostra, por exemplo, a reconstrução de coeficientes de 12 bits a partir de grupos de três bytes e a organização posterior desses valores em streams internos [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Participação no ML-KEM: O bloco será utilizado na preparação das chaves públicas e secretas e, principalmente, na codificação e decodificação dos ciphertexts durante Encaps e Decaps [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).  
-  * Organização do datapath: A sequência de quantização, empacotamento, desempacotamento e reconstrução apresentada é uma referência para a organização do datapath, podendo ser modificada conforme as decisões de projeto relacionadas a largura de dados, paralelismo, armazenamento e fluxo de dados. O requisito é que as representações produzidas e interpretadas sejam compatíveis com as especificações do ML-KEM.   
-* **Lógica de Rejeição Implícita:**  
-  * Função: Responsável pelo fluxo de verificação realizado durante o Decaps, evitando que o resultado da comparação do ciphertext seja exposto diretamente ao sistema como uma condição de erro [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * Recuperação da mensagem: O processamento começa pela decodificação do ciphertext recebido e pela recuperação da mensagem utilizando a chave secreta. A mensagem recuperada é então combinada com os valores armazenados na chave secreta para reconstruir os valores utilizados no encapsulamento [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).  
-  * Reencapsulação: A partir dos valores recuperados, o hardware executa novamente o fluxo de encapsulamento necessário para produzir um novo ciphertext. Esse fluxo envolve a geração dos coins, execução do CBD, NTT, multiplicação, INTT e compressão, produzindo o ciphertext que será comparado ao ciphertext original [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).  
-  * Comparação do ciphertext: O ciphertext produzido durante a reencapsulação deverá ser comparado com o ciphertext originalmente recebido. A implementação de referência mostra explicitamente a sequência indcpa\_dec → hash\_g → indcpa\_enc → verify, seguida do cálculo da chave de rejeição e da operação cmov para selecionar a chave final [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). A comparação deverá considerar o ciphertext completo e produzir uma condição de igualdade ou falha sem interromper o fluxo criptográfico.  
-  * Chave de rejeição: Paralelamente à comparação, deverá ser calculada a chave de rejeição utilizando o segredo reservado para essa finalidade e o ciphertext recebido [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z). Essa chave será utilizada como resultado alternativo quando a comparação indicar que o ciphertext recebido não corresponde ao ciphertext reconstruído.  
-  * Seleção constant-time: A chave normalmente derivada e a chave de rejeição deverão ser submetidas a uma seleção condicional em tempo constante. Quando a comparação for válida, deverá ser utilizada a chave normalmente derivada; quando houver divergência, deverá ser utilizada a chave de rejeição [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). A seleção não deverá depender de uma ramificação de controle que produza comportamento temporal observável. Dessa forma, independentemente do resultado da comparação, o caminho de processamento deverá manter o comportamento necessário para impedir que a validade do ciphertext seja utilizada como um canal de informação [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).  
-  * Estratégia de verificação: O fluxo de reencapsulação, comparação e seleção da chave apresentado constitui uma referência para a implementação do mecanismo de verificação do Decaps. A arquitetura final poderá organizar essas etapas de maneira distinta, desde que preserve o comportamento funcional e, principalmente, as propriedades de execução em tempo constante exigidas para evitar a exposição da validade do ciphertext.   
-* **Bloco de CSR e Zeroização de Chaves:**  
-  * Função: Responsável pela configuração, controle e observação do acelerador, além do gerenciamento do material criptográfico sensível.  
-  * Interface de controle: A interface de controle deverá permitir que o sistema hospedeiro selecione e inicie uma operação, forneça os endereços ou referências dos dados envolvidos, acompanhe o estado do processamento e identifique a conclusão da operação. Na implementação de referência disponível na literatura [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13), o núcleo possui uma interface AXI4-Lite Slave dedicada ao controle e interfaces AXI4 Master separadas para acesso à memória. Um wrapper separa os espaços de memória utilizados para ciphertext (gmemct), shared secret (gmemss), buffers (gmembuf), public key (gmempk) e secret key (gmemsk), permitindo que o núcleo movimente esses dados independentemente. A interface de controle possui os sinais de escrita e leitura AXI4-Lite (AW, W, B, AR e R) e sinalização de interrupção, sendo responsável por controlar o núcleo HLS.  
-  * Registrador de controle: Na arquitetura proposta, deverá existir um registrador de controle contendo o comando de início da operação e, quando aplicável, a seleção do modo KeyGen, Encaps ou Decaps. Esse registrador poderá também concentrar comandos relacionados à inicialização, reinicialização do processamento e acionamento da limpeza dos recursos internos.  
-  * Registrador de status: Deverá existir um registrador de status contendo as principais indicações do estado de execução do acelerador, incluindo, no mínimo, idle, busy, done e condição de erro. Essas informações permitirão ao sistema hospedeiro determinar se o acelerador está disponível, se uma operação está em andamento e quando os resultados podem ser consumidos.  
-  * Registradores de configuração: Deverão ser previstos registradores destinados aos parâmetros necessários à execução, quando esses parâmetros não forem fixos na implementação. Esses registradores deverão permitir configurar as informações necessárias para que a FSM de Controle Central possa executar corretamente a operação selecionada.  
-  * Registradores de endereço e tamanho: Quando os dados forem transferidos por memória, deverão ser previstos registradores de endereço e tamanho para indicar as regiões de memória ou buffers utilizados como entrada e saída. Na implementação de referência disponível na literatura [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13), os espaços de memória são separados entre ciphertext, shared secret, buffers, public key e secret key, permitindo que o núcleo movimente esses dados de forma independente.  
-  * Registradores de interrupção: Quando utilizada sinalização por interrupção, deverão ser previstos mecanismos para indicar a conclusão da operação ou uma condição de erro ao processador hospedeiro, evitando a necessidade de consulta contínua do registrador de status. A implementação final deverá definir os campos, offsets e largura exata desses registradores durante a especificação da interface AXI4-Lite.  
-  * Zeroização de chaves: A zeroização deverá abranger os recursos internos que possam conter material criptográfico sensível durante ou após a execução. Deverão ser considerados, principalmente:  
-    * Chave secreta;  
-    * Sementes utilizadas na geração de chaves;  
-    * Valores pseudoaleatórios;  
-    * Coins utilizados durante Encaps;  
-    * Coins utilizados durante a reencapsulação do Decaps;  
-    * Valores intermediários derivados desses dados;  
-    * Mensagem intermediária recuperada durante o Decaps;  
-    * Chave compartilhada intermediária;  
-    * Chave de rejeição;  
-    * Buffers temporários utilizados para armazenar esses valores;  
-    * Estados e buffers do motor Keccak que contenham dados derivados de material secreto;  
-    * Registradores e memórias dos blocos NTT/INTT, CBD e codificação quando armazenarem material sensível.  
-  * Momento da zeroização: A limpeza deverá ocorrer ao término da operação e poderá também ser acionada durante o reset ou mediante uma condição de erro definida pela arquitetura. O mecanismo deverá garantir que os dados não permaneçam acessíveis nos registradores, memórias ou buffers internos após a limpeza. A zeroização constitui um requisito de segurança da implementação e não uma operação matemática adicional do ML-KEM definida pela FIPS 203\.  
-  * Definição arquitetural: A organização dos registradores, buffers, interfaces de controle e mecanismos de zeroização apresentada deve ser considerada uma proposta inicial para a integração do acelerador. A definição dos CSRs, seus campos, endereços, mecanismos de controle e estratégia de limpeza será consolidada durante o detalhamento da arquitetura, podendo diferir da organização observada nas implementações de referência.  
-* **Interfaces AXI4-Lite e AXI4-Stream**:  
-  * Função: Responsáveis pela comunicação entre o acelerador e o sistema hospedeiro, permitindo o controle e configuração do processamento e a transferência dos dados criptográficos de entrada e saída.  
-  * AXI4-Lite: A interface AXI4-Lite será utilizada para o acesso aos registradores de controle, status, configuração e demais CSRs do acelerador. Por meio dessa interface, o sistema hospedeiro poderá iniciar as operações, configurar os parâmetros necessários, acompanhar o estado de execução e identificar a conclusão ou ocorrência de erros. A interface deverá implementar os canais de escrita e leitura previstos no protocolo AXI4-Lite, incluindo os canais de endereço, dados e resposta [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13).  
-  * AXI4-Stream de Entrada (Subordinate): A interface de entrada será utilizada para receber os dados necessários às operações do ML-KEM, permitindo o encaminhamento dos dados ao datapath interno sem exigir que cada componente conheça diretamente a origem dos dados. Conforme a operação executada, poderão ser recebidos seeds utilizados no KeyGen, chaves públicas utilizadas no Encaps e ciphertexts utilizados no Decaps.  
-  * AXI4-Stream de Saída (Manager): A interface de saída será utilizada para encaminhar ao sistema hospedeiro os resultados produzidos pelo acelerador, incluindo ciphertexts gerados durante o Encaps e o segredo compartilhado K produzido durante o Encaps ou Decaps.  
-  * Controle do fluxo: As interfaces AXI4-Stream deverão permitir o controle do fluxo de dados por meio dos mecanismos de handshake definidos pelo protocolo, permitindo que o produtor e o consumidor coordenem a transferência dos dados. A arquitetura interna deverá ser capaz de interromper ou prosseguir com o processamento conforme a disponibilidade dos dados e a capacidade de recebimento do próximo estágio.  
-  * Integração com a arquitetura: As interfaces deverão atuar como camada de comunicação entre o ambiente externo e a FSM de Controle Central, que será responsável por interpretar os comandos recebidos pelos CSRs e encaminhar os dados para os componentes internos correspondentes. Dessa forma, os blocos NTT/INTT, Keccak, CBD, Compress/Decompress e demais componentes não deverão depender diretamente do protocolo externo de comunicação.  
+* **Processador NTT / INTT:**
+  * Função: Responsável pelas transformações Number Theoretic Transform (NTT) e Inverse Number Theoretic Transform (INTT), além das operações aritméticas associadas à multiplicação de polinômios no domínio transformado [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * Fluxo da NTT: O processamento deverá contemplar a leitura dos coeficientes, aplicação das operações de butterfly utilizando os fatores ζ (zetas), multiplicações modulares, reduções e reorganização dos dados entre as diferentes etapas da transformação. Na implementação de referência, a NTT transforma o polinômio da representação normal para a representação no domínio NTT, enquanto a INTT realiza o caminho inverso; a multiplicação propriamente dita é realizada por basemul no domínio transformado [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.wis76nlo2juy). A implementação em hardware analisada explicita esse fluxo por meio de múltiplas etapas ntt\_layer, seguidas de redução modular, basemul\_montgomery e acumulação dos resultados. A NTT é dividida em sete camadas de processamento, com operações de butterfly utilizando diferentes índices de zetas; os dados são divididos em dois fluxos, processados e posteriormente recombinados [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Fluxo da INTT: Na direção inversa, a INTT utiliza sete camadas correspondentes, com inv\_butterfly, recombinação dos fluxos e multiplicação final pelo fator necessário à transformação inversa [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Multiplicação de polinômios: A transformação NTT não constitui, isoladamente, a operação de multiplicação de polinômios. Após a transformação dos polinômios para o domínio NTT, a multiplicação é realizada por meio de basemul, envolvendo as operações aritméticas necessárias entre os coeficientes transformados [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). Nas operações envolvendo vetores ou matrizes de polinômios, os resultados das multiplicações individuais devem ser acumulados para produzir o polinômio resultante. Dessa forma, o processamento deverá contemplar também as operações de acumulação e redução dos resultados intermediários [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y), [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Operações internas: Portanto, o processador deverá ser entendido como um conjunto integrado de NTT/INTT \+ butterfly \+ multiplicação modular \+ redução \+ basemul \+ acumulação \+ controle do fluxo dos coeficientes, e não apenas como uma unidade matemática isolada. O datapath deverá controlar a movimentação dos coeficientes entre as diferentes camadas da transformação, a utilização dos fatores zetas, a separação e recombinação dos fluxos de dados e o encaminhamento dos resultados para as operações subsequentes [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Participação no ML-KEM: No fluxo de KeyGen, a NTT é aplicada aos vetores secretos antes da multiplicação matriz-vetor. Em Encaps, é aplicada ao vetor aleatório utilizado na multiplicação com a matriz pública. Em Decaps, é aplicada ao ciphertext e ao vetor secreto antes da multiplicação necessária para recuperar a mensagem [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).
+  * Possibilidades de implementação: As estruturas descritas, como butterfly, basemul, multiplicações e reduções modulares, correspondem a uma das formas possíveis de organizar o processamento. A implementação final poderá adotar uma arquitetura diferente para essas operações, desde que mantenha as transformações e operações matemáticas requeridas pelo ML-KEM.
+* **Motor Keccak:**
+  * Função: Responsável pela execução das primitivas de hash criptográfico SHA3-256, SHA3-512, SHAKE128 e SHAKE256, utilizadas em diferentes etapas do ML-KEM [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * Permutação Keccak-f\[1600\]: O componente deverá implementar a permutação Keccak-f\[1600\] e fornecer o mecanismo necessário para operações de hash, XOF e PRF. A implementação de hardware analisada utiliza um estado interno de 25 palavras de 64 bits e executa as rodadas da permutação por meio das operações correspondentes às etapas θ, ρ, π, χ e ι, incluindo rotações e aplicação das constantes de rodada [\[FIPS-202\]](#bookmark=id.fpodsz4kgtkf), [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Fluxo de processamento: O fluxo de entrada deverá realizar a inicialização do estado, absorção dos bytes de entrada, aplicação do padding correspondente à função utilizada, execução da permutação e, quando aplicável, squeeze para produzir a quantidade de saída necessária. A operação deverá permitir que o estado interno seja atualizado sucessivamente enquanto os blocos de entrada são absorvidos e, nas operações de saída variável, que novas palavras sejam produzidas durante o squeeze, conforme quantidade de dados exigida na operação [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13), [\[FIPS-202\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.fpodsz4kgtkf).
+  * Utilização como XOF e PRF: No ML-KEM, o SHAKE128 é utilizado como XOF na expansão da semente para geração da matriz pública, enquanto o SHAKE256 é utilizado como PRF para gerar os dados pseudoaleatórios posteriormente processados pelo CBD [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z). A utilização do SHAKE como XOF permite produzir a quantidade necessária de bytes a partir de uma entrada inicial, enquanto a utilização como PRF permite produzir deterministicamente os dados necessários para a geração dos coeficientes de segredo e ruído [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * Utilização das funções SHA3: As primitivas SHA3-256 e SHA3-512 também são utilizadas em diferentes etapas do fluxo do ML-KEM para derivação e processamento de valores criptográficos [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z). Dessa forma, o motor Keccak deverá ser compartilhado entre as diferentes operações, evitando a necessidade de implementar unidades independentes para cada função criptográfica.
+  * Organização do bloco: A análise do fluxo em hardware mostra que o mesmo motor pode ser reutilizado para diferentes funções, onde a seleção do tamanho da taxa (rate), a quantidade de dados de entrada e a quantidade de dados produzidos são determinadas pela operação em execução [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13). Dessa forma, o motor deverá disponibilizar ao restante do datapath um fluxo de bytes pseudoaleatórios ou valores derivados, sendo utilizado pelos blocos de geração da matriz, geração de ruído, derivação de valores e demais etapas que dependem das primitivas SHA-3 e SHAKE.
+  * Organização do processamento: A organização apresentada para o motor Keccak é baseada no fluxo observado nas referências de hardware e serve como uma possibilidade de estruturação do bloco. A arquitetura definitiva poderá explorar outras formas de particionamento, paralelismo ou compartilhamento dos recursos, preservando as primitivas criptográficas necessárias.
+* **Amostrador CBD (Centered Binomial Distribution):**
+  * Função: Responsável pela conversão dos bytes pseudoaleatórios produzidos pelo PRF em coeficientes pertencentes à distribuição binomial centrada definida para o ML-KEM  [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), essenciais ao [erro estatístico do Module-LWE](#definição-geral-do-algoritmo-ml-kem).
+  * Geração dos dados de entrada: O fluxo do componente começa com a recepção dos bytes produzidos pelo SHAKE256 e termina com a geração de um polinômio cujos coeficientes são pequenos e centrados em zero. Os dados recebidos pelo amostrador são produzidos deterministicamente a partir da semente e do nonce utilizados pela operação, permitindo que os mesmos valores sejam reproduzidos quando necessário durante o fluxo criptográfico [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).
+  * Processamento dos bits: Na implementação de referência, para η=2, quatro bytes são carregados como um valor de 32 bits. Os bits são reorganizados por operações de máscara e deslocamento e, para cada grupo, são calculados dois valores a e b, sendo o coeficiente obtido por a-b [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). Esse processamento transforma o fluxo de bits pseudoaleatórios em coeficientes pertencentes à distribuição definida para o parâmetro correspondente.
+  * Organização em hardware: A mesma lógica é implementada em hardware pelas unidades cbd2 e cbd3, que recebem os fluxos produzidos pelo SHAKE e produzem diretamente os coeficientes dos polinômios [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13). Assim, o bloco deverá conter, essencialmente, entrada de bytes, agrupamento de bits, extração dos grupos correspondentes, contagem dos bits e subtração, produzindo uma sequência de coeficientes pronta para o datapath NTT.
+  * Participação no ML-KEM: Esse componente participa principalmente da geração dos vetores secretos e dos termos de erro. Em KeyGen, é utilizado para gerar os vetores de segredo e erro. Em Encaps, para gerar os vetores aleatórios e termos de erro utilizados na construção do ciphertext. Em Decaps, participa novamente quando o valor recuperado precisa ser reencapsulado para a verificação do ciphertext  [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y), [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Estratégia de amostragem: O procedimento descrito representa a estratégia observada nas implementações analisadas para transformar a saída pseudoaleatória em coeficientes da distribuição binomial centrada. Outras organizações internas podem ser empregadas para realizar essa mesma função, sem alterar a distribuição definida para os coeficientes pelo ML-KEM.
+* **Datapath de Compress/Decompress e Byte(En/De)code:**
+  * Função: Responsável pela transformação dos polinômios entre sua representação interna e os formatos definidos para chaves, ciphertexts e demais estruturas serializadas [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * ByteEncode e ByteDecode: A primeira função do datapath é realizar a conversão entre bytes e coeficientes, utilizada para reconstruir polinômios a partir de chaves ou ciphertexts e para serializar os resultados. O ByteEncode deverá organizar os coeficientes de acordo com a quantidade de bits definida para a representação correspondente e realizar o empacotamento desses valores em bytes. O ByteDecode deverá executar o processo inverso, extraindo os campos de bits dos bytes recebidos e reconstruindo os coeficientes [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).
+  * Compress: A segunda função corresponde à compressão dos coeficientes. Na implementação de referência, a compressão realiza inicialmente o mapeamento dos coeficientes para representantes positivos, aplica a quantização definida pelo parâmetro $d$ e, posteriormente, empacota os valores resultantes em bytes [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). A implementação de hardware reproduz esse fluxo por meio de operações de leitura dos coeficientes, normalização modular, quantização e empacotamento dos bits. Para diferentes parâmetros de compressão, são utilizados diferentes números de bits por coeficiente [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Decompress: No caminho inverso, o decompress deverá extrair os campos de bits dos bytes recebidos e reconstruir os coeficientes utilizados pelo datapath aritmético. Esse processo deverá considerar a reconstrução dos valores a partir da representação comprimida e a aplicação das operações necessárias para produzir a representação utilizada pelas operações polinomiais subsequentes [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * Empacotamento e organização dos dados: Esse bloco também deverá controlar a ordem dos coeficientes e o agrupamento dos bits, pois a serialização não consiste simplesmente em copiar palavras de memória. A referência disponível na literatura mostra, por exemplo, a reconstrução de coeficientes de 12 bits a partir de grupos de três bytes e a organização posterior desses valores em streams internos [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Participação no ML-KEM: O bloco será utilizado na preparação das chaves públicas e secretas e, principalmente, na codificação e decodificação dos ciphertexts durante Encaps e Decaps [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).
+  * Organização do datapath: A sequência de quantização, empacotamento, desempacotamento e reconstrução apresentada é uma referência para a organização do datapath, podendo ser modificada conforme as decisões de projeto relacionadas a largura de dados, paralelismo, armazenamento e fluxo de dados. O requisito é que as representações produzidas e interpretadas sejam compatíveis com as especificações do ML-KEM.
+* **Lógica de Rejeição Implícita:**
+  * Função: Responsável pelo fluxo de verificação realizado durante o Decaps, evitando que o resultado da comparação do ciphertext seja exposto diretamente ao sistema como uma condição de erro [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * Recuperação da mensagem: O processamento começa pela decodificação do ciphertext recebido e pela recuperação da mensagem utilizando a chave secreta. A mensagem recuperada é então combinada com os valores armazenados na chave secreta para reconstruir os valores utilizados no encapsulamento [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y).
+  * Reencapsulação: A partir dos valores recuperados, o hardware executa novamente o fluxo de encapsulamento necessário para produzir um novo ciphertext. Esse fluxo envolve a geração dos coins, execução do CBD, NTT, multiplicação, INTT e compressão, produzindo o ciphertext que será comparado ao ciphertext original [\[PQC-Crystals-HLS-Accelerators\]](#bookmark=id.ywj8nq6s5l13).
+  * Comparação do ciphertext: O ciphertext produzido durante a reencapsulação deverá ser comparado com o ciphertext originalmente recebido. A implementação de referência mostra explicitamente a sequência indcpa\_dec → hash\_g → indcpa\_enc → verify, seguida do cálculo da chave de rejeição e da operação cmov para selecionar a chave final [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). A comparação deverá considerar o ciphertext completo e produzir uma condição de igualdade ou falha sem interromper o fluxo criptográfico.
+  * Chave de rejeição: Paralelamente à comparação, deverá ser calculada a chave de rejeição utilizando o segredo reservado para essa finalidade e o ciphertext recebido [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z). Essa chave será utilizada como resultado alternativo quando a comparação indicar que o ciphertext recebido não corresponde ao ciphertext reconstruído.
+  * Seleção constant-time: A chave normalmente derivada e a chave de rejeição deverão ser submetidas a uma seleção condicional em tempo constante. Quando a comparação for válida, deverá ser utilizada a chave normalmente derivada; quando houver divergência, deverá ser utilizada a chave de rejeição [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z), [\[CRYSTALS-Kyber-REF\]](#bookmark=id.bnjhpdmgyj8y). A seleção não deverá depender de uma ramificação de controle que produza comportamento temporal observável. Dessa forma, independentemente do resultado da comparação, o caminho de processamento deverá manter o comportamento necessário para impedir que a validade do ciphertext seja utilizada como um canal de informação [\[FIPS-203\]](#bookmark=id.cbi9oldjtu9z).
+  * Estratégia de verificação: O fluxo de reencapsulação, comparação e seleção da chave apresentado constitui uma referência para a implementação do mecanismo de verificação do Decaps. A arquitetura final poderá organizar essas etapas de maneira distinta, desde que preserve o comportamento funcional e, principalmente, as propriedades de execução em tempo constante exigidas para evitar a exposição da validade do ciphertext.
+* **Bloco de CSR e Zeroização de Chaves:**
+  * Função: Responsável pela configuração, controle e observação do acelerador, além do gerenciamento do material criptográfico sensível.
+  * Interface de controle: A interface de controle deverá permitir que o sistema hospedeiro selecione e inicie uma operação, forneça os endereços ou referências dos dados envolvidos, acompanhe o estado do processamento e identifique a conclusão da operação. Na implementação de referência disponível na literatura [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13), o núcleo possui uma interface AXI4-Lite Slave dedicada ao controle e interfaces AXI4 Master separadas para acesso à memória. Um wrapper separa os espaços de memória utilizados para ciphertext (gmemct), shared secret (gmemss), buffers (gmembuf), public key (gmempk) e secret key (gmemsk), permitindo que o núcleo movimente esses dados independentemente. A interface de controle possui os sinais de escrita e leitura AXI4-Lite (AW, W, B, AR e R) e sinalização de interrupção, sendo responsável por controlar o núcleo HLS.
+  * Registrador de controle: Na arquitetura proposta, deverá existir um registrador de controle contendo o comando de início da operação e, quando aplicável, a seleção do modo KeyGen, Encaps ou Decaps. Esse registrador poderá também concentrar comandos relacionados à inicialização, reinicialização do processamento e acionamento da limpeza dos recursos internos.
+  * Registrador de status: Deverá existir um registrador de status contendo as principais indicações do estado de execução do acelerador, incluindo, no mínimo, idle, busy, done e condição de erro. Essas informações permitirão ao sistema hospedeiro determinar se o acelerador está disponível, se uma operação está em andamento e quando os resultados podem ser consumidos.
+  * Registradores de configuração: Deverão ser previstos registradores destinados aos parâmetros necessários à execução, quando esses parâmetros não forem fixos na implementação. Esses registradores deverão permitir configurar as informações necessárias para que a FSM de Controle Central possa executar corretamente a operação selecionada.
+  * Registradores de endereço e tamanho: Quando os dados forem transferidos por memória, deverão ser previstos registradores de endereço e tamanho para indicar as regiões de memória ou buffers utilizados como entrada e saída. Na implementação de referência disponível na literatura [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13), os espaços de memória são separados entre ciphertext, shared secret, buffers, public key e secret key, permitindo que o núcleo movimente esses dados de forma independente.
+  * Registradores de interrupção: Quando utilizada sinalização por interrupção, deverão ser previstos mecanismos para indicar a conclusão da operação ou uma condição de erro ao processador hospedeiro, evitando a necessidade de consulta contínua do registrador de status. A implementação final deverá definir os campos, offsets e largura exata desses registradores durante a especificação da interface AXI4-Lite.
+  * Zeroização de chaves: A zeroização deverá abranger os recursos internos que possam conter material criptográfico sensível durante ou após a execução. Deverão ser considerados, principalmente:
+    * Chave secreta;
+    * Sementes utilizadas na geração de chaves;
+    * Valores pseudoaleatórios;
+    * Coins utilizados durante Encaps;
+    * Coins utilizados durante a reencapsulação do Decaps;
+    * Valores intermediários derivados desses dados;
+    * Mensagem intermediária recuperada durante o Decaps;
+    * Chave compartilhada intermediária;
+    * Chave de rejeição;
+    * Buffers temporários utilizados para armazenar esses valores;
+    * Estados e buffers do motor Keccak que contenham dados derivados de material secreto;
+    * Registradores e memórias dos blocos NTT/INTT, CBD e codificação quando armazenarem material sensível.
+  * Momento da zeroização: A limpeza deverá ocorrer ao término da operação e poderá também ser acionada durante o reset ou mediante uma condição de erro definida pela arquitetura. O mecanismo deverá garantir que os dados não permaneçam acessíveis nos registradores, memórias ou buffers internos após a limpeza. A zeroização constitui um requisito de segurança da implementação e não uma operação matemática adicional do ML-KEM definida pela FIPS 203\.
+  * Definição arquitetural: A organização dos registradores, buffers, interfaces de controle e mecanismos de zeroização apresentada deve ser considerada uma proposta inicial para a integração do acelerador. A definição dos CSRs, seus campos, endereços, mecanismos de controle e estratégia de limpeza será consolidada durante o detalhamento da arquitetura, podendo diferir da organização observada nas implementações de referência.
+* **Interfaces AXI4-Lite e AXI4-Stream**:
+  * Função: Responsáveis pela comunicação entre o acelerador e o sistema hospedeiro, permitindo o controle e configuração do processamento e a transferência dos dados criptográficos de entrada e saída.
+  * AXI4-Lite: A interface AXI4-Lite será utilizada para o acesso aos registradores de controle, status, configuração e demais CSRs do acelerador. Por meio dessa interface, o sistema hospedeiro poderá iniciar as operações, configurar os parâmetros necessários, acompanhar o estado de execução e identificar a conclusão ou ocorrência de erros. A interface deverá implementar os canais de escrita e leitura previstos no protocolo AXI4-Lite, incluindo os canais de endereço, dados e resposta [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13).
+  * AXI4-Stream de Entrada (Subordinate): A interface de entrada será utilizada para receber os dados necessários às operações do ML-KEM, permitindo o encaminhamento dos dados ao datapath interno sem exigir que cada componente conheça diretamente a origem dos dados. Conforme a operação executada, poderão ser recebidos seeds utilizados no KeyGen, chaves públicas utilizadas no Encaps e ciphertexts utilizados no Decaps.
+  * AXI4-Stream de Saída (Manager): A interface de saída será utilizada para encaminhar ao sistema hospedeiro os resultados produzidos pelo acelerador, incluindo ciphertexts gerados durante o Encaps e o segredo compartilhado K produzido durante o Encaps ou Decaps.
+  * Controle do fluxo: As interfaces AXI4-Stream deverão permitir o controle do fluxo de dados por meio dos mecanismos de handshake definidos pelo protocolo, permitindo que o produtor e o consumidor coordenem a transferência dos dados. A arquitetura interna deverá ser capaz de interromper ou prosseguir com o processamento conforme a disponibilidade dos dados e a capacidade de recebimento do próximo estágio.
+  * Integração com a arquitetura: As interfaces deverão atuar como camada de comunicação entre o ambiente externo e a FSM de Controle Central, que será responsável por interpretar os comandos recebidos pelos CSRs e encaminhar os dados para os componentes internos correspondentes. Dessa forma, os blocos NTT/INTT, Keccak, CBD, Compress/Decompress e demais componentes não deverão depender diretamente do protocolo externo de comunicação.
   * Organização da implementação: A utilização de módulos dedicados para AXI4-Lite e AXI4-Stream, ou a implementação das interfaces diretamente no módulo top-level, constitui uma decisão de organização do hardware. Para o presente projeto, tais interfaces serão encapsuladas em módulos dedicados (wrappers de integração), conforme as decisões de particionamento e integração do acelerador.
 
 A FSM de Controle Central deverá, portanto, atuar como elemento responsável por sequenciar esses caminhos sem duplicar desnecessariamente os recursos. Um mesmo processador NTT/INTT poderá ser reutilizado nas três operações, assim como o motor Keccak poderá atender a geração da matriz, geração de ruído, hashing e derivação de chaves. A referência disponível na literatura [\[PQC-Crystals-HLS-Accelerators\]](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#bookmark=id.ywj8nq6s5l13) demonstra tal organização em dataflow, com numerosos *hls::stream* conectando as etapas e permitindo que os dados sejam encaminhados entre NTT, redução, multiplicação, INTT, CBD, Keccak e codificação. No Decaps, por exemplo, o fluxo observado compreende a leitura do ciphertext e da chave secreta, descompressão e decodificação, NTT, basemul, acumulação, INTT, recuperação da mensagem, SHA3-512, geração de novos coins e repetição do fluxo de encapsulamento para posterior comparação.
 
 O diagrama abaixo demonstra a visão geral de tal arquitetura:
 
-**![][image6]**  
+**![][image6]**
 Figura 6 \- Diagrama da arquitetura
 
 ### **Diferenciais e Boas Práticas** {#diferenciais-e-boas-práticas}
 
 São objetivos entregar os seguintes diferenciais e boas práticas de engenharia de hardware:
 
-* **Rastreabilidade entre especificação FIPS 203, módulos RTL e testes**, permitindo identificar de qual parte do documento [\[FIPS-203\]](#bookmark=id.36f4om99xz5a) a funcionalidade implementada foi especificada, possibilitando conferir e verificar rapidamente se o módulo RTL e seu respectivo teste estão em conformidade com a especificação oficial.  
-* **CSRs específicos para status, contagem de ciclos, erros e auditoria:** os CSRs (*Control and Status Registers*) fornecem uma interface padronizada para controle e monitoramento do sistema, podendo ser utilizados para disponibilizar informações de status, contadores de desempenho e indicadores de erro do hardware. No presente projeto, pode-se destacar CSRs com as seguintes funções:  
-  * **Controle e Status Geral:** registradores utilizados para controle de operações, sinalização de prontidão e para indicar a conclusão de processamento.  
-  * **Contadores de Desempenho**: registradores utilizados para medir o tempo de execução de operações importantes como geração de chaves, encapsulamento e desencapsulamento, permitindo a análise da latência.  
-  * **Registro de Erros e Exceções:** registradores utilizados para indicar e armazenar códigos referentes a falhas ocorridas durante a execução, como erros de acesso à memória, falhas internas ou *timeouts*.  
-  * **Auditoria:** registradores utilizados para disponibilizar informações relevantes sobre a utilização e a identificação do hardware, como versão da implementação e contadores de operações e eventos de erro, possibilitando análises posteriores de diagnóstico e segurança.  
-* **Scoreboard \+ golden model para comparação automática dos resultados:** utilização de um modelo de referência (*golden model*) para gerar as saídas esperadas e de um *scoreboard* integrado no ambiente UVM, permitindo assim comparar os resultados gerados pelo RTL com os valores gerados pelo modelo de referência. Com essa abordagem é possível verificar de forma automatizada o funcionamento da implementação utilizando vetores de testes pré-definidos pelo NIST para o ML-KEM [\[NIST-VECTORS\]](#bookmark=id.dos8y6dsfd6h), possibilitando a identificação de divergências durante as verificações.  
+* **Rastreabilidade entre especificação FIPS 203, módulos RTL e testes**, permitindo identificar de qual parte do documento [\[FIPS-203\]](#bookmark=id.36f4om99xz5a) a funcionalidade implementada foi especificada, possibilitando conferir e verificar rapidamente se o módulo RTL e seu respectivo teste estão em conformidade com a especificação oficial.
+* **CSRs específicos para status, contagem de ciclos, erros e auditoria:** os CSRs (*Control and Status Registers*) fornecem uma interface padronizada para controle e monitoramento do sistema, podendo ser utilizados para disponibilizar informações de status, contadores de desempenho e indicadores de erro do hardware. No presente projeto, pode-se destacar CSRs com as seguintes funções:
+  * **Controle e Status Geral:** registradores utilizados para controle de operações, sinalização de prontidão e para indicar a conclusão de processamento.
+  * **Contadores de Desempenho**: registradores utilizados para medir o tempo de execução de operações importantes como geração de chaves, encapsulamento e desencapsulamento, permitindo a análise da latência.
+  * **Registro de Erros e Exceções:** registradores utilizados para indicar e armazenar códigos referentes a falhas ocorridas durante a execução, como erros de acesso à memória, falhas internas ou *timeouts*.
+  * **Auditoria:** registradores utilizados para disponibilizar informações relevantes sobre a utilização e a identificação do hardware, como versão da implementação e contadores de operações e eventos de erro, possibilitando análises posteriores de diagnóstico e segurança.
+* **Scoreboard \+ golden model para comparação automática dos resultados:** utilização de um modelo de referência (*golden model*) para gerar as saídas esperadas e de um *scoreboard* integrado no ambiente UVM, permitindo assim comparar os resultados gerados pelo RTL com os valores gerados pelo modelo de referência. Com essa abordagem é possível verificar de forma automatizada o funcionamento da implementação utilizando vetores de testes pré-definidos pelo NIST para o ML-KEM [\[NIST-VECTORS\]](#bookmark=id.dos8y6dsfd6h), possibilitando a identificação de divergências durante as verificações.
 * **Avaliação de PPA após síntese:** a análise de PPA (*power, performance e area*) é realizada após a síntese do projeto para avaliar o consumo de recursos lógicos, o desempenho temporal e a estimativa de potência do hardware. Com essa validação é possível identificar gargalos de área e desempenho, além de permitir a comparação entre diferentes arquiteturas de implementação e otimização do RTL.
 
   4. ## **Referências Bibliográficas** {#referências-bibliográficas-1}
 
      \[FIPS-203\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. Module-Lattice-Based Key-Encapsulation Mechanism Standard. Federal Information Processing Standards Publication (FIPS PUB 203). Gaithersburg, MD: NIST, Aug. 2024\. DOI: 10.6028/NIST.FIPS.203. Disponível em: [https://csrc.nist.gov/pubs/fips/203/final](https://csrc.nist.gov/pubs/fips/203/final). Acesso em: 25 ago. 2026\.
 
-     
+
 
      \[FIPS-202\]	NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions. Federal Information Processing Standards Publication (FIPS PUB 202). Gaithersburg, MD: NIST, Aug. 2015\. DOI: 10.6028/NIST.FIPS.202. Disponível em: [https://csrc.nist.gov/pubs/fips/202/final](https://csrc.nist.gov/pubs/fips/202/final).  Acesso em: 25 ago. 2026\.
 
-     
+
 
      \[CRYSTALS-Kyber-REF\]	AVANZI, Roberto et al. CRYSTALS-Kyber: Reference Implementation. GitHub repository. pq-crystals/kyber, ref. Disponível em: [https://github.com/pq-crystals/kyber/tree/main/ref](https://github.com/pq-crystals/kyber/tree/main/ref). Acesso em: 25 ago. 2026\.
 
-     
+
 
      \[PQC-Crystals-HLS-Accelerators\]	BSC-LOCA. PQC-Crystals-HLS-Accelerators: This technology implements a PQC accelerator for FPGA-based SoCs using HLS. GitHub repository. Disponível em:  [https://github.com/bsc-loca/PQC-Crystals-HLS-Accelerators](https://github.com/bsc-loca/PQC-Crystals-HLS-Accelerators). Acesso em: 25 ago. 2026\.
 
@@ -429,7 +336,7 @@ O Responsável Geral coordena a divisão de tarefas na equipe; monitora o cronog
 
 1. Para cada módulo de hardware, um Designer RTL e um Verificador Unitário atuarão de forma paralela e colaborativa, seguindo uma abordagem bottom-up na qual os módulos de menor nível são desenvolvidos e verificados antes da integração aos blocos superiores. O Designer RTL será responsável pela implementação do módulo em SystemVerilog, enquanto o Verificador Unitário desenvolverá o testbench (também em SystemVerilog) considerando a especificação funcional, interfaces, sinais de controle e condições de operação.
 
-   A estratégia de verificação contemplará condições normais e casos de limite/*corner cases*. Os testes serão executados de forma incremental, acompanhando a evolução do RTL e comparando os resultados obtidos com os valores esperados ou vetores de referência definidos na especificação. 
+   A estratégia de verificação contemplará condições normais e casos de limite/*corner cases*. Os testes serão executados de forma incremental, acompanhando a evolução do RTL e comparando os resultados obtidos com os valores esperados ou vetores de referência definidos na especificação.
 
    Falhas identificadas durante a simulação serão analisadas conjuntamente, podendo resultar em ajustes no RTL, no testbench ou nos casos de teste. Após cada correção, os testes serão reexecutados para confirmar a solução e verificar a ausência de regressões.
 
@@ -451,7 +358,7 @@ O Responsável Geral coordena a divisão de tarefas na equipe; monitora o cronog
 
    O desenvolvimento do ambiente UVM ocorrerá de forma incremental e orientada às micro funcionalidades UVM destinadas ao projeto (BFMs, Agents, Sequences \+ Tests, etc.). Não se trata da verificação UVM em si (aplicada ao DUT), apenas do desenvolvimento de código do ambiente. A cada micro-funcionalidade desenvolvida, o testbench é elaborado e executado (considerando um DUT fictício), com correções sendo feitas sob demanda.
 
-   O testbench naturalmente deverá abordar condições normais de operação e casos de limite/ *corner cases*. Os resultados obtidos serão comparados com os resultados esperados (vetores de teste do NIST), permitindo avaliar a conformidade da implementação com a especificação. 
+   O testbench naturalmente deverá abordar condições normais de operação e casos de limite/ *corner cases*. Os resultados obtidos serão comparados com os resultados esperados (vetores de teste do NIST), permitindo avaliar a conformidade da implementação com a especificação.
 
    Quando forem identificadas divergências ou falhas durante a execução do ambiente, será realizada uma análise conjunta com o líder técnico para determinar sua origem. Conforme o caso, poderão ser necessárias correções no ambiente UVM, nos estímulos ou nos modelos de referência. Após cada correção, o ambiente será novamente elaborado e executado, garantindo a validação da alteração e evitando a introdução de novos erros.
 
@@ -459,7 +366,7 @@ O Responsável Geral coordena a divisão de tarefas na equipe; monitora o cronog
 
 2. Ao final do desenvolvimento do ambiente UVM, baseado nos comentários inseridos no código, o verificador UVM elaborará um documento técnico conciso demonstrando a arquitetura e o fluxo geral do testbench UVM (principais componentes, geração e aplicação dos estímulos, o monitoramento das interfaces, coleta e comparação dos resultados).
 
-   Quando necessário, para facilitar a compreensão do ambiente desenvolvido, serão utilizadas ilustrações, diagramas de blocos, fluxogramas e/ou gráficos pertinentes. 
+   Quando necessário, para facilitar a compreensão do ambiente desenvolvido, serão utilizadas ilustrações, diagramas de blocos, fluxogramas e/ou gráficos pertinentes.
 
    Essa documentação será utilizada posteriormente como material de apoio para a [fase 4](#fase-4:-documentação-e-apresentação), juntamente com a documentação produzida durante o desenvolvimento e a verificação dos módulos RTL.
 
@@ -655,18 +562,18 @@ Nota: *Semanas preenchidas com tom de sombreamento em cor cinza indica o períod
 
 Sempre que houver quaisquer intercorrências (atraso de desenvolvimento, limitações técnicas, restrições de prazo, etc) que **afetem quaisquer objetivos definidos no [plano de atividades](#plano-de-atividades), nos [resultados esperados](#resultados-esperados) ou no [cronograma de execução](#cronograma-de-execução)**, tais intercorrências deverão ser devidamente registradas pelo Responsável Geral na **lista de contingências**, devendo conter**:**
 
-* Data;  
-* **Identificação da contingência/intercorrência**;  
-* **Ação a ser tomada**;  
-* Justificativa pela ação tomada;  
+* Data;
+* **Identificação da contingência/intercorrência**;
+* **Ação a ser tomada**;
+* Justificativa pela ação tomada;
 * Observações, se aplicáveis (mudanças de prazos, entregáveis alterados, etc).
 
 Abaixo estão algumas das possíveis ações que podem ser tomadas:
 
-1. **Reestruturação do plano de atividades** (o que cada integrante fará);  
-2. **Reestruturação dos resultados esperados** (quais os entregáveis);  
-3. **Reestruturação do cronograma de execução** (execução antecipada ou paralela de atividades, replanejamento de prazos, inclusão ou exclusão de atividades, etc.);  
-4. Correções de RTL, testbench unitário ou ambiente UVM;  
+1. **Reestruturação do plano de atividades** (o que cada integrante fará);
+2. **Reestruturação dos resultados esperados** (quais os entregáveis);
+3. **Reestruturação do cronograma de execução** (execução antecipada ou paralela de atividades, replanejamento de prazos, inclusão ou exclusão de atividades, etc.);
+4. Correções de RTL, testbench unitário ou ambiente UVM;
 5. Alteração da estratégia de implementação de determinado módulo.
 
 Sempre que houver tais intercorrências, o responsável geral deverá notificar o professor.
@@ -693,11 +600,11 @@ O [cronograma de execução](#cronograma-de-execução) será monitorado continu
 
 Eis algumas das potenciais intercorrências que poderiam exigir alterações no cronograma:
 
-* Atraso na implementação de um módulo (devido a complexidade ou identificação de erros durante a verificação);  
-* Identificação de erros durante a verificação;  
-* Necessidade de alteração da arquitetura;  
-* Dificuldades de integração entre componentes;  
-* Resultados insatisfatórios de síntese;  
+* Atraso na implementação de um módulo (devido a complexidade ou identificação de erros durante a verificação);
+* Identificação de erros durante a verificação;
+* Necessidade de alteração da arquitetura;
+* Dificuldades de integração entre componentes;
+* Resultados insatisfatórios de síntese;
 * Dependências entre as etapas do projeto.
 
   4. ## **Mapeamento de Riscos e Plano de Ação** {#mapeamento-de-riscos-e-plano-de-ação}
