@@ -550,7 +550,7 @@ Nota: *Semanas preenchidas com tom de sombreamento em cor cinza indica o períod
 
 ## 8.1. Gerenciamento de Mudanças no Escopo
 
-Sempre que houver quaisquer intercorrências (atraso de desenvolvimento, limitações técnicas, restrições de prazo, etc) que **afetem quaisquer objetivos definidos no [plano de atividades](#plano-de-atividades), nos [resultados esperados](#resultados-esperados) ou no [cronograma de execução](#cronograma-de-execução)**, tais intercorrências deverão ser devidamente registradas pelo Responsável Geral na **lista de contingências**, devendo conter**:
+Sempre que houver quaisquer intercorrências (atraso de desenvolvimento, limitações técnicas, restrições de prazo, etc.) que **afetem quaisquer objetivos definidos no [plano de atividades](#51-plano-de-atividades), nos [resultados esperados](#6-resultados-esperados) ou no [cronograma de execução](#7-cronograma-de-execução)**, tais intercorrências deverão ser devidamente registradas pelo Responsável Geral na **lista de contingências**, devendo conter:
 * Data;
 * **Identificação da contingência/intercorrência**;
 * **Ação a ser tomada**;
@@ -568,26 +568,25 @@ Sempre que houver tais intercorrências, o responsável geral deverá notificar 
 
 ## 8.2. Mapeamento da Execução e Interdependências
 
-Conforme descrito no [plano de atividades](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#heading=h.j3dn6r14co9d), nos [resultados esperados](#resultados-esperados) e no [cronograma de execução](#cronograma-de-execução), o projeto terá metas de entrega **sequenciais bottom-top** justamente para minimizar a interdependência de componentes e, por consequência, o risco de travamento dos trabalhos.
+Conforme descrito no [plano de atividades](#51-plano-de-atividades), nos [resultados esperados](#6-resultados-esperados) ou no [cronograma de execução](#7-cronograma-de-execução), o projeto terá metas de entrega **sequenciais bottom-top** justamente para minimizar a interdependência de componentes e, por consequência, o risco de travamento dos trabalhos.
 
 Abaixo está sintetizada a cadeia de execução com possíveis interdependências e contingências:
 
-| Etapa | Atividade  | Interdependência | Contingências |
-| :---: | :---: | :---: | :---: |
-| Fase 1 (M1.1 a M1.8) | Design RTL \+ Verificação Unitária | A efetiva verificação unitária depende do módulo RTL pronto | Caso um integrante fique ocioso, será remanejado  para o Desenvolvimento UVM |
-| Fase 1 (M1.9 a M1.16) | Desenvolvimento UVM | \- |  |
-| Fase 2 (M2.1 a M2.3) | Integração | Fase 1 concluída  | Caso um integrante fique ocioso, será remanejado  para a fase 4\. |
-| Fase 3 (M3.1 a M3.4) | Síntese final  | Fase 2 concluída | Caso um integrante fique ocioso, será remanejado  para a fase 4\. |
-| Fase 4 (M4.1 a M4.2) | Documentação final | Para plenos trabalhos, precisa da Fase 3 concluída, mas pode ser adiantada em determinadas frentes | Motivação do projeto, fundamentação do ML-KEM, arquitetura proposta, descrição dos principais módulos e metodologia de verificação não dependem da conclusão da fase 2 ou da fase 3\. |
+|         Etapa         |             Atividade             |                                          Interdependência                                          |                                                                                    Contingências                                                                                     |
+| :-------------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| Fase 1 (M1.1 a M1.8)  | Design RTL + Verificação Unitária |                    A efetiva verificação unitária depende do módulo RTL pronto                     |                                                     Caso um integrante fique ocioso, será remanejado  para o Desenvolvimento UVM                                                     |
+| Fase 1 (M1.9 a M1.16) |        Desenvolvimento UVM        |                                                 \-                                                 |                                                                                                                                                                                      |
+| Fase 2 (M2.1 a M2.3)  |            Integração             |                                          Fase 1 concluída                                          |                                                           Caso um integrante fique ocioso, será remanejado  para a fase 4.                                                           |
+| Fase 3 (M3.1 a M3.4)  |           Síntese final           |                                          Fase 2 concluída                                          |                                                           Caso um integrante fique ocioso, será remanejado  para a fase 4.                                                           |
+| Fase 4 (M4.1 a M4.2)  |        Documentação final         | Para plenos trabalhos, precisa da Fase 3 concluída, mas pode ser adiantada em determinadas frentes | Motivação do projeto, fundamentação do ML-KEM, arquitetura proposta, descrição dos principais módulos e metodologia de verificação não dependem da conclusão da fase 2 ou da fase 3. |
 
-Conforme explicado na [seção 8.1](#gerenciamento-de-mudanças-no-escopo), qualquer intercorrência que ocorra nesta cadeia de execução deverá ser registrada na **lista de contingências** com as possíveis ações a serem tomadas.
+Conforme explicado na [seção 8.1](#81-gerenciamento-de-mudanças-no-escopo), qualquer intercorrência que ocorra nesta cadeia de execução deverá ser registrada na **lista de contingências** com as possíveis ações a serem tomadas.
 
 ## 8.3. Controle de Alterações no Cronograma
 
-O [cronograma de execução](#cronograma-de-execução) será monitorado continuamente pelo **responsável geral** durante o todo o ciclo de desenvolvimento do hardware ML-KEM. Conforme explicado na [seção 8.1](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#heading=h.629g1q76grr), qualquer intercorrência que impacte o cronograma deverá ser devidamente registrada na **lista de contingências** com as possíveis ações a serem tomadas.
+O [cronograma de execução](#7-cronograma-de-execução) será monitorado continuamente pelo **responsável geral** durante o todo o ciclo de desenvolvimento do hardware ML-KEM. Conforme explicado na [seção 8.1](#81-gerenciamento-de-mudanças-no-escopo), qualquer intercorrência que impacte o cronograma deverá ser devidamente registrada na **lista de contingências** com as possíveis ações a serem tomadas.
 
 Eis algumas das potenciais intercorrências que poderiam exigir alterações no cronograma:
-
 * Atraso na implementação de um módulo (devido a complexidade ou identificação de erros durante a verificação);
 * Identificação de erros durante a verificação;
 * Necessidade de alteração da arquitetura;
@@ -597,18 +596,18 @@ Eis algumas das potenciais intercorrências que poderiam exigir alterações no 
 
 ## 8.4. Mapeamento de Riscos e Plano de Ação
 
-Abaixo estão listadas as principais **contingências** não citadas nas seções [8.2](#mapeamento-da-execução-e-interdependências) e [8.3](#controle-de-alterações-no-cronograma) que poderiam ocorrer no projeto, bem como possíveis **ações a serem tomadas**.
+Abaixo estão listadas as principais **contingências** não citadas nas seções [8.2](#82-mapeamento-da-execução-e-interdependências) e [8.3](#83-controle-de-alterações-no-cronograma) que poderiam ocorrer no projeto, bem como possíveis **ações a serem tomadas**.
 
-| Risco identificado | Impacto | Contramedidas |
-| ----- | :---: | ----- |
-| Desligamento de integrantes | Alto | Reduzir a dimensão de todo o escopo de projeto (reestruturar plano de atividades, resultados esperados e cronograma de execução). |
-| Overhead do ambiente UVM | Alto | Simplificar o ambiente UVM (plano de atividades, resultados esperados e cronograma de execução). |
-| Excesso de utilização dos recursos da FPGA | Alto | Dar atenção às sínteses unitárias (fase 1). Caso limites sejam excedidos, reavaliar a utilização de recursos, de paralelismo e otimizações arquiteturais. |
-| Desempenho insuficiente | Alto | Monitorar frequência, latência e throughput durante as sínteses. Dar atenção especial às constraints SDC e às otimizações dos blocos críticos (operações de NTT/INTT e Motor Keccak). |
-| Problemas relacionados às ferramentas de desenvolvimento e síntese | Média | Padronizar configurações, versões e scripts utilizados no projeto, mantendo os artefatos no repositório de trabalho. |
-| Tempo insuficiente para documentação e apresentação | Média | Desenvolver a documentação de forma incremental durante o projeto, consolidando os resultados ao final. |
-| Trabalhos adiantados | Baixo | Aumentar a dimensão do escopo de projeto (reestruturar plano de atividades, resultados esperados e cronograma de execução) \- implementar de fato o IP desenvolvido no FPGA. |
+| Risco identificado                                                 | Impacto | Contramedidas                                                                                                                                                                         |
+| ------------------------------------------------------------------ | :-----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Desligamento de integrantes                                        |  Alto   | Reduzir a dimensão de todo o escopo de projeto (reestruturar plano de atividades, resultados esperados e cronograma de execução).                                                     |
+| Overhead do ambiente UVM                                           |  Alto   | Simplificar o ambiente UVM (plano de atividades, resultados esperados e cronograma de execução).                                                                                      |
+| Excesso de utilização dos recursos da FPGA                         |  Alto   | Dar atenção às sínteses unitárias (fase 1). Caso limites sejam excedidos, reavaliar a utilização de recursos, de paralelismo e otimizações arquiteturais.                             |
+| Desempenho insuficiente                                            |  Alto   | Monitorar frequência, latência e throughput durante as sínteses. Dar atenção especial às constraints SDC e às otimizações dos blocos críticos (operações de NTT/INTT e Motor Keccak). |
+| Problemas relacionados às ferramentas de desenvolvimento e síntese |  Média  | Padronizar configurações, versões e scripts utilizados no projeto, mantendo os artefatos no repositório de trabalho.                                                                  |
+| Tempo insuficiente para documentação e apresentação                |  Média  | Desenvolver a documentação de forma incremental durante o projeto, consolidando os resultados ao final.                                                                               |
+| Trabalhos adiantados                                               |  Baixo  | Aumentar a dimensão do escopo de projeto (reestruturar plano de atividades, resultados esperados e cronograma de execução) - implementar de fato o IP desenvolvido no FPGA.           |
 
 Os riscos classificados como de alto impacto deverão ser acompanhados com atenção durante todo o desenvolvimento.
 
-E lembrando que as ações a serem tomadas definidas acima sempre deverão seguir os critérios descritos na [seção 8.1](https://docs.google.com/document/d/1j0pHjkP_AfRtE5LrEm-AKQ_FgCgBz5AqlkvHEiWSUN0/edit?pli=1&tab=t.0#heading=h.629g1q76grr).
+E lembrando que as ações a serem tomadas definidas acima sempre deverão seguir os critérios descritos na [seção 8.1](#81-gerenciamento-de-mudanças-no-escopo).
