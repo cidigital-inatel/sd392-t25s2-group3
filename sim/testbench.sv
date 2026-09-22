@@ -23,7 +23,7 @@ module ml_kem_tb;
         // 1. Interface virtual para o bfm instanciado
         uvm_config_db#(virtual bfm #(TB_DATA_WIDTH))::set(null, "uvm_test_top", "vif_0", bfm_i);
 
-        // Se não houver um +UVM_TESTNAME=<test_selecionado>, escolher o teste abaixo
+        // Se não houver um +UVM_TESTNAME=<test_selecionado> via script, escolher o teste abaixo
         if (!$value$plusargs("UVM_TESTNAME=%s", selected_test))
             selected_test = "test";
 

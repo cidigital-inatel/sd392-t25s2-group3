@@ -6,9 +6,9 @@ package testbench_pkg;
     parameter int TB_DATA_WIDTH = 4;        // Tamanho do barramento de dados
     parameter int TB_NUM_TRANSACTIONS = 20; // Quantidade de sequence items a serem instanciados
 
-    //`include "base_sequence_item.svh"
+    `include "sequence_item_base.svh"
     `include "sequence_item.svh"
-    //`include "base_sequence.svh"
+    `include "sequence_base.svh"
     `include "sequence.svh"
     `include "sequencer.svh"
     `include "driver.svh"
@@ -17,6 +17,6 @@ package testbench_pkg;
     `include "scoreboard.svh"
     `include "coverage.svh"
     `include "environment.svh"
-    // `include "base_test.svh"
+    `include "test_base.svh"
     `include "test.svh"
 endpackage
