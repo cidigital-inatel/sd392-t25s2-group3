@@ -9,7 +9,7 @@ package testbench_pkg;
     `include "sequence_item_base.svh"
     `include "sequence_item.svh"
     `include "sequence_base.svh"
-    `include "sequence.svh"
+    `include "sequence_incremental.svh"
     `include "sequencer.svh"
     `include "driver.svh"
     `include "monitor.svh"
