@@ -1,0 +1,20 @@
+// This file tells Verible WHAT CONSTITUTES THE PROJECT, allowing it to PARSE, LINT, FORMAT, and INDEX the whole code correctly
+
+// DIRECTORIES TARGETED BY `INCLUDE
+// 1) Only files called by "`include" will be parsed (classes, macros, constants, etc.);
+// 2) Not recursive! (i.e. files from subfolders are not added);
+// 3) If these parsed header files call other header files from subfolders of Inc Dir, they are also parsed.
+
++incdir+../uvm-core.git/src
++incdir+./sim
+
+// DESIGN ELEMENTS (modules, packages, interfaces, programs) and STANDALONE HEADERS (macros, typedefs, constants, enums, classes, functions... NOT pulled in by any `include statement)
+// 1) The order matters, bottom to top: RTL files (bottom to top) -> Simulation files (bottom to top)
+
+./rtl/gray_encoder_sync.sv
+
+../uvm-core.git/src/uvm_pkg.sv
+
+./sim/bfm.sv
+./sim/testbench_pkg.sv
+./sim/testbench.sv
