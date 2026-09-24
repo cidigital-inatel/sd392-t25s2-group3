@@ -430,6 +430,82 @@ module keccak #(
             squeeze_block = '0;
         end
     endfunction
+	
+	// ========================================================================
+	// FSM de controle
+	// ========================================================================
+
+	typedef enum logic [2:0] {
+		ST_IDLE,
+		ST_ABSORB,
+		ST_PAD,
+		ST_PERMUTE,
+		ST_SQUEEZE,
+		ST_DONE,
+		ST_ERROR
+	} keccak_state_t;
+
+	keccak_state_t current_state;
+	keccak_state_t next_state;
+
+	logic permutation_done;
+	logic output_last;
+	
+	// ========================================================================
+	// Lógica de transição da FSM
+	// ========================================================================
+
+	always_comb begin
+
+		next_state = current_state;
+
+		case (current_state)
+
+			ST_IDLE: begin
+				if (start)
+					next_state = ST_ABSORB;
+			end
+
+			ST_ABSORB: begin
+				if (absorb_valid && absorb_ready) begin
+					if (absorb_last)
+						next_state = ST_PAD;
+				end
+			end
+
+			ST_PAD: begin
+				next_state = ST_PERMUTE;
+			end
+
+			ST_PERMUTE: begin
+				if (permutation_done)
+					next_state = ST_SQUEEZE;
+			end
+
+			ST_SQUEEZE: begin
+				if (output_valid && output_ready) begin
+					if (output_last)
+						next_state = ST_DONE;
+					else
+						next_state = ST_PERMUTE;
+				end
+			end
+
+			ST_DONE: begin
+				next_state = ST_IDLE;
+			end
+
+			ST_ERROR: begin
+				next_state = ST_IDLE;
+			end
+
+			default: begin
+				next_state = ST_ERROR;
+			end
+
+		endcase
+
+	end
 
     // ========================================================================
     // Controle sequencial
@@ -447,27 +523,31 @@ module keccak #(
      */
     always_ff @(posedge clk or negedge rst_n) begin
 
-        if (!rst_n) begin
+		if (!rst_n) begin
 
-            state_reg     <= '0;
-            state_next    <= '0;
-            round_counter <= '0;
+			state_reg     <= '0;
+			state_next    <= '0;
+			round_counter <= '0;
 
-            absorb_ready  <= 1'b0;
-            busy          <= 1'b0;
-            done          <= 1'b0;
-            error         <= 1'b0;
+			absorb_ready  <= 1'b0;
+			busy          <= 1'b0;
+			done          <= 1'b0;
+			error         <= 1'b0;
 
-            output_data   <= '0;
-            output_valid  <= 1'b0;
+			output_data   <= '0;
+			output_valid  <= 1'b0;
 
-        end else begin
+			current_state <= ST_IDLE;
 
-            // TODO:
-            // Implementar FSM principal do motor Keccak.
+		end else begin
 
-        end
+			current_state <= next_state;
 
-    end
+			// TODO:
+			// Controle de cada estado será implementado aqui.
+
+		end
+
+	end
 
 endmodule
