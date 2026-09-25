@@ -320,23 +320,40 @@ module mlkem_keccak_engine
       end
 
       ST_ABSORB: begin
+        // Sinaliza que o motor está pronto para receber palavras de dados (Handshake)
+        data_in_ready_o = 1'b1;
+        
         // TODO: Executar XOR do data_in_i no segmento de Rate r do keccak_state_q
         // TODO: Avançar para ST_PERMUTE quando um bloco completo de tamanho r for absorvido
+        if (data_in_valid_i && data_in_ready_o) begin
+          if (data_in_last_i) begin
+            state_d = ST_IDLE; // Retorna para IDLE aguardando o próximo comando
+          end
+        end
       end
 
       ST_PADDING: begin
         // TODO: Aplicar o sufixo de domínio (get_domain_pad_byte) e o bit final de pad10*1 no limite da taxa r
         // TODO: Transicionar para ST_PERMUTE para rodar as 24 rodadas finais da absorção
+        state_d = ST_DONE; // Simula conclusão do bloco de padding no stub
       end
 
       ST_PERMUTE: begin
         // TODO: Iterar round_cnt_q de 0 a 23 usando perm_state_out_s
         // TODO: Após 24 rodadas, transicionar para ST_IDLE, ST_SQUEEZE ou ST_DONE
+        state_d = ST_DONE;
       end
 
       ST_SQUEEZE: begin
         // TODO: Fornecer palavras de DATA_WIDTH a partir da parte r do estado keccak_state_q
         // TODO: Se mais bytes forem requisitados além da taxa r, disparar nova permutação ST_PERMUTE (XOF/Squeeze)
+        data_out_valid_o = 1'b1;
+        data_out_o       = 64'hA5A5A5A5A5A5A5A5; // Valor fictício para teste de extração no stub
+        
+        if (data_out_ready_i) begin
+          data_out_last_o = 1'b1;
+          state_d         = ST_DONE;
+        end
       end
 
       ST_ZEROIZE: begin
