@@ -339,7 +339,7 @@ O Responsável Geral coordena a divisão de tarefas na equipe; monitora o cronog
 
 3. Ao final da etapa, será elaborado um documento técnico conciso contendo a finalidade e o funcionamento do módulo, sua arquitetura, principais interfaces, estratégia de verificação e resultados obtidos.
 
-   Quando pertinente, serão incluídos diagramas de blocos, fluxogramas, formas de onda, gráficos e resultados de síntese, permitindo relacionar a implementação RTL, a verificação e os resultados de hardware. Essa documentação será utilizada como material de apoio para a [fase 4](#615-fase-4-documentação-e-apresentação) do projeto.
+   Quando pertinente, serão incluídos diagramas de blocos, fluxogramas, formas de onda, gráficos e resultados de síntese, permitindo relacionar a implementação RTL, a verificação e os resultados de hardware. Essa documentação será utilizada como material de apoio para a [fase 4](#516-fase-4---documentação-e-apresentação) do projeto.
 
 4. Eventuais violações ou inconsistências serão tratadas conforme os [Planos de Contingência](#8-planos-de-contingências), com os devidos ajustes e revalidações sendo tomados até a obtenção de resultados satisfatórios dos trabalhos.
 
@@ -359,7 +359,7 @@ O Responsável Geral coordena a divisão de tarefas na equipe; monitora o cronog
 
    Quando necessário, para facilitar a compreensão do ambiente desenvolvido, serão utilizadas ilustrações, diagramas de blocos, fluxogramas e/ou gráficos pertinentes.
 
-   Essa documentação será utilizada posteriormente como material de apoio para a [fase 4](#615-fase-4-documentação-e-apresentação), juntamente com a documentação produzida durante o desenvolvimento e a verificação dos módulos RTL.
+   Essa documentação será utilizada posteriormente como material de apoio para a [fase 4](#516-fase-4---documentação-e-apresentação), juntamente com a documentação produzida durante o desenvolvimento e a verificação dos módulos RTL.
 
 3. Eventuais violações ou inconsistências serão tratadas conforme os [Planos de Contingência](#8-planos-de-contingências), com os devidos ajustes e revalidações sendo tomados até a obtenção de resultados satisfatórios dos trabalhos.
 
@@ -381,7 +381,7 @@ Eventuais violações ou inconsistências serão tratadas conforme os [Planos de
 
 ### 5.1.6. Fase 4 - Documentação e Apresentação
 
-A documentação final será elaborada a partir dos documentos produzidos na [Fase 1](#611-fase-1-desenvolvimento-unitário), dos *reports* e resultados obtidos durante a integração ([Fase 2](#613-fase-2-integração-e-verificação-do-ml-kem)) e dos resultados da síntese final ([Fase 3](#614-fase-3-síntese-e-análise-do-hardware)).
+A documentação final será elaborada a partir dos documentos produzidos na [Fase 1](#512-fase-1---desenvolvimento-unitário), dos *reports* e resultados obtidos durante a integração ([Fase 2](#514-fase-2---integração-e-verificação-do-ml-kem)) e dos resultados da síntese final ([Fase 3](#515-fase-3---síntese-e-análise-do-hardware)).
 
 Nessa etapa, serão consolidados os resultados do desenvolvimento, da verificação e da síntese, incluindo, quando pertinente, ilustrações, diagramas, fluxogramas, formas de onda e/ou gráficos, de modo a apresentar de forma clara e organizada a metodologia adotada e os principais resultados obtidos.
 
