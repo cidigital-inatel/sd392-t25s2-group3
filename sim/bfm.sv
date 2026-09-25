@@ -1,5 +1,12 @@
 `timescale 1ns/1ps
+
 // BFM de exemplo - trocar apenas as lógicas de protocolo para novos BFMs
+/* 
+    crie um novo arquivo .sv para cada BFM, com interface e lógicas de protocolo específicas do DUT,
+    mas vou deixar este exemplo de BFM para referência, para ir consultando durante o desenvolvimento.
+    Ao concluir a uvm, eu removo os arquivos de modelo.
+*/
+
 interface bfm #(parameter int DATA_WIDTH = 4, parameter int CLK_FREQ_MHZ = 100);
     localparam time CLK_PERIOD = (1_000.0 / CLK_FREQ_MHZ) * 1ns;
     logic clk;
