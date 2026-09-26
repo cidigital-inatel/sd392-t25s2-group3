@@ -54,7 +54,7 @@ Somar, subtrair e multiplicar usando apenas este conjunto circular mantém valor
 - Conjunto de polinômios (anel de polinômios) com coeficientes inteiros: $ℤ[X]$;
 - Conjunto de polinômios (anel de polinômios) com coeficientes reais: $ℝ[X]$.
 
-O ML-KEM trabalha no anel de polinômios ${R}_{q}\ =\ {ℤ}_{q}[X]/(X^{256}+1)$: resto da divisão entre ${ℤ}_{q}[X]$ e $(X^{256}+1)$. Ou seja, em termos práticos, o polinômio só poderá ter 256 coeficientes, todos módulo 3329, e a técnica de substituição aritmética $X^{256}=\ -1$ define como reduzir termos de grau a partir de 256 \[**FIPS-203, §4.1**\].
+O ML-KEM trabalha no anel de polinômios $R_q = \mathbb{Z}_q[X]/(X^{256} + 1)$ resto da divisão entre $\mathbb{Z}_q[X]$ e $(X^{256}+1)$. Ou seja, em termos práticos, o polinômio só poderá ter 256 coeficientes, todos módulo 3329, e a técnica de substituição aritmética $X^{256}=\ -1$ define como reduzir termos de grau a partir de 256 \[**FIPS-203, §4.1**\].
 
 Em um ML-KEM implementado em hardware, um polinômio é representado através de um vetor de coeficientes $\{...,\ a2,\ a1,\ a0\}$. Portanto, um vetor de polinômios é uma matriz desses vetores de coeficientes; uma matriz de polinômios é uma matriz multidimensional desses vetores de coeficientes.
 
