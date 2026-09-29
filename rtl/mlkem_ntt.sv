@@ -74,3 +74,78 @@ package mlkem_ntt_pkg;
   } ntt_coeff_pair_t;
 
 endpackage : mlkem_ntt_pkg
+
+
+// =============================================================================
+// Submódulo 1: Unidade Aritmética Modular (Montgomery e Barrett Reduction)
+// Rastreabilidade: FIPS 203 §4.3 & §4.1
+// =============================================================================
+module mlkem_modular_arith
+  import mlkem_ntt_pkg::*;
+(
+  input  logic [MLKEM_DATA_WIDTH-1:0] operand_a_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] operand_b_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] zeta_i,
+  output logic [MLKEM_DATA_WIDTH-1:0] result_add_o,
+  output logic [MLKEM_DATA_WIDTH-1:0] result_sub_o,
+  output logic [MLKEM_DATA_WIDTH-1:0] result_mont_o
+);
+
+  // TODO: Declarar sinais internos para redução de Montgomery / Barrett.
+
+  // TODO: Implementar função de Redução de Montgomery (Montgomery Reduce):
+  //       Recebe produto de 32 bits, retorna (a * R^-1 mod q).
+  function automatic logic [MLKEM_DATA_WIDTH-1:0] montgomery_reduce(
+    input logic [31:0] prod_i
+  );
+    // TODO: Implementar lógica matemática de redução de Montgomery.
+    return '0;
+  endfunction
+
+  // TODO: Implementar função de Adição Modular: (a + b) mod q.
+  function automatic logic [MLKEM_DATA_WIDTH-1:0] mod_q_add(
+    input logic [MLKEM_DATA_WIDTH-1:0] a_i,
+    input logic [MLKEM_DATA_WIDTH-1:0] b_i
+  );
+    // TODO: Implementar soma modular.
+    return '0;
+  endfunction
+
+  // TODO: Implementar função de Subtração Modular: (a - b + q) mod q.
+  function automatic logic [MLKEM_DATA_WIDTH-1:0] mod_q_sub(
+    input logic [MLKEM_DATA_WIDTH-1:0] a_i,
+    input logic [MLKEM_DATA_WIDTH-1:0] b_i
+  );
+    // TODO: Implementar subtração modular.
+    return '0;
+  endfunction
+
+  // TODO: Atribuir saídas funcionais após a implementação das funções acima.
+  assign result_add_o  = '0;
+  assign result_sub_o  = '0;
+  assign result_mont_o = '0;
+
+endmodule : mlkem_modular_arith
+
+
+// =============================================================================
+// Submódulo 2: Tabela de Fatores de Torção (ROM de Zetas)
+// Rastreabilidade: FIPS 203 §4.3, Tabela de valores zeta em representação de Montgomery
+// =============================================================================
+module mlkem_zeta_rom
+  import mlkem_ntt_pkg::*;
+(
+  input  logic [6:0]                  zeta_addr_i,
+  output logic [MLKEM_DATA_WIDTH-1:0] zeta_val_o,
+  output logic [MLKEM_DATA_WIDTH-1:0] zeta_inv_val_o
+);
+
+  // TODO: Declarar arranjo ROM de zetas pré-calculados conforme FIPS 203.
+  // logic [MLKEM_DATA_WIDTH-1:0] zeta_table [0:127];
+  // logic [MLKEM_DATA_WIDTH-1:0] zeta_inv_table [0:127];
+
+  // TODO: Leitura síncrona/assíncrona dos fatores de torção para NTT e INTT.
+  assign zeta_val_o     = '0;
+  assign zeta_inv_val_o = '0;
+
+endmodule : mlkem_zeta_rom
