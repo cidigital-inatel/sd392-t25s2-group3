@@ -12,10 +12,7 @@
 // 1) The order matters, bottom to top: RTL files (bottom to top) -> Simulation files (bottom to top)
 
 ./rtl/gray_encoder_sync.sv
-
-./rtl/mlkem_keccak_tb.sv
 ./rtl/mlkem_keccak.sv
-./rtl/mlkem_ntt_tb.sv
 ./rtl/mlkem_ntt.sv
 
 ../uvm-core.git/src/uvm_pkg.sv
@@ -24,6 +21,9 @@
 ./sim/axi_lite_bfm.sv
 ./sim/axis_input_bfm.sv
 ./sim/axis_output_bfm.sv
+
+./rtl/mlkem_keccak_tb.sv
+./rtl/mlkem_ntt_tb.sv
 
 ./sim/testbench_pkg.sv
 ./sim/testbench.sv
