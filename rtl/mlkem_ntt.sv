@@ -310,3 +310,180 @@ module mlkem_ntt_fsm
   assign error_o         = '0;
 
 endmodule : mlkem_ntt_fsm
+
+
+// =============================================================================
+// MÓDULO PRINCIPAL: mlkem_ntt (Top-Level do Subsistema NTT - Entregável M1.1)
+// Rastreabilidade: FIPS 203 §4.3 (Algoritmos 8, 9 e 10)
+// =============================================================================
+module mlkem_ntt
+  import mlkem_ntt_pkg::*;
+(
+  // ---------------------------------------------------------------------------
+  // Clocks e Resets
+  // ---------------------------------------------------------------------------
+  input  logic                        clk_i,        // Clock principal do sistema
+  input  logic                        rst_ni,       // Reset assíncrono (ativo em nível baixo)
+
+  // ---------------------------------------------------------------------------
+  // Interface de Comando e Controle
+  // ---------------------------------------------------------------------------
+  input  logic                        start_i,      // Sinal de início de operação (pulsado)
+  input  ntt_op_cmd_e                 cmd_op_i,     // Seleção da operação (NTT, INTT, BASEMUL, ACCUM)
+  output logic                        ready_o,      // Pronto para receber novo comando
+  output logic                        busy_o,       // Operação em andamento
+  output logic                        done_o,       // Operação concluída com sucesso
+  output logic                        error_o,      // Indicador de erro de execução/parâmetro
+
+  // ---------------------------------------------------------------------------
+  // Interface de Leitura de Entrada (Polinômio A e Polinômio B)
+  // ---------------------------------------------------------------------------
+  output logic [MLKEM_LOG2_N-1:0]     rd_addr_a_o,  // Endereço de leitura do Polinômio A
+  input  logic [MLKEM_DATA_WIDTH-1:0] rd_data_a_i,  // Dado de entrada do Polinômio A
+  output logic [MLKEM_LOG2_N-1:0]     rd_addr_b_o,  // Endereço de leitura do Polinômio B (usado em BaseMul)
+  input  logic [MLKEM_DATA_WIDTH-1:0] rd_data_b_i,  // Dado de entrada do Polinômio B
+
+  // ---------------------------------------------------------------------------
+  // Interface de Escrita de Saída (Polinômio Resultante)
+  // ---------------------------------------------------------------------------
+  output logic                        wr_en_o,      // Habilita escrita do resultado
+  output logic [MLKEM_LOG2_N-1:0]     wr_addr_o,    // Endereço de escrita no buffer de saída
+  output logic [MLKEM_DATA_WIDTH-1:0] wr_data_o,    // Dado do coeficiente calculado
+
+  // ---------------------------------------------------------------------------
+  // Interface de Sanitização de Segurança
+  // ---------------------------------------------------------------------------
+  input  logic                        zeroize_i     // Comando de zeramento forçado do estado interno
+);
+
+  // ===========================================================================
+  // Declaração de Sinais Internos e Interconexões
+  // ===========================================================================
+  ntt_fsm_state_e fsm_state;
+  logic [2:0]     current_stage;
+  logic [7:0]     coeff_idx;
+  logic [6:0]     zeta_idx;
+
+  logic [MLKEM_DATA_WIDTH-1:0] zeta_val;
+  logic [MLKEM_DATA_WIDTH-1:0] zeta_inv_val;
+
+  logic [MLKEM_DATA_WIDTH-1:0] bfly_a_in, bfly_b_in;
+  logic [MLKEM_DATA_WIDTH-1:0] bfly_a_out, bfly_b_out;
+
+  logic [MLKEM_DATA_WIDTH-1:0] basemul_c0, basemul_c1;
+
+  // ===========================================================================
+  // Instanciação dos Submódulos
+  // ===========================================================================
+
+  // 1. Instância da FSM de Controle
+  mlkem_ntt_fsm u_ntt_fsm (
+    .clk_i           (clk_i),
+    .rst_ni          (rst_ni),
+    .cmd_op_i        (cmd_op_i),
+    .start_i         (start_i),
+    .state_o         (fsm_state),
+    .stage_counter_o (current_stage),
+    .poly_index_o    (coeff_idx),
+    .zeta_index_o    (zeta_idx),
+    .busy_o          (busy_o),
+    .done_o          (done_o),
+    .error_o         (error_o)
+  );
+
+  // 2. Instância da ROM de Zetas
+  mlkem_zeta_rom u_zeta_rom (
+    .zeta_addr_i     (zeta_idx),
+    .zeta_val_o      (zeta_val),
+    .zeta_inv_val_o  (zeta_inv_val)
+  );
+
+  // 3. Instância da Unidade Borboleta (NTT/INTT)
+  mlkem_butterfly_unit u_butterfly (
+    .clk_i           (clk_i),
+    .rst_ni          (rst_ni),
+    .is_inverse_i    (cmd_op_i == OP_NTT_INVERSE),
+    .coeff_a_i       (bfly_a_in),
+    .coeff_b_i       (bfly_b_in),
+    .zeta_factor_i   ((cmd_op_i == OP_NTT_INVERSE) ? zeta_inv_val : zeta_val),
+    .coeff_a_o       (bfly_a_out),
+    .coeff_b_o       (bfly_b_out)
+  );
+
+  // 4. Instância da Unidade BaseCaseMultiply (Algoritmo 10)
+  mlkem_basemul_unit u_basemul (
+    .clk_i           (clk_i),
+    .rst_ni          (rst_ni),
+    .a0_i            (rd_data_a_i),
+    .a1_i            (rd_data_a_i), // TODO: Ajustar para o par de coeficientes
+    .b0_i            (rd_data_b_i),
+    .b1_i            (rd_data_b_i), // TODO: Ajustar para o par de coeficientes
+    .gamma_i         (zeta_val),
+    .c0_o            (basemul_c0),
+    .c1_o            (basemul_c1)
+  );
+
+  // 5. Instância do Buffer RAM Interno
+  mlkem_poly_ram_buffer u_poly_buffer (
+    .clk_i           (clk_i),
+    .we_a_i          (1'b0),
+    .addr_a_i        ('0),
+    .wdata_a_i       ('0),
+    .rdata_a_o       (),
+    .we_b_i          (1'b0),
+    .addr_b_i        ('0),
+    .wdata_b_i       ('0),
+    .rdata_b_o       (),
+    .zeroize_i       (zeroize_i)
+  );
+
+  // ===========================================================================
+  // Funções Internas do Módulo Top
+  // ===========================================================================
+
+  // TODO: Função para validação de limites de coeficientes (deve ser < 3329)
+  function automatic logic check_coeff_validity(
+    input logic [MLKEM_DATA_WIDTH-1:0] coeff_val_i
+  );
+    // TODO: Implementar verificação se coeff_val_i < MLKEM_Q
+    return (coeff_val_i < MLKEM_Q);
+  endfunction
+
+  // TODO: Função para calcular os endereços dos pares borboleta com base na camada (stage)
+  function automatic logic [7:0] get_butterfly_pair_index(
+    input logic [2:0] stage_i,
+    input logic [7:0] elem_idx_i
+  );
+    // TODO: Implementar cálculo de índice de par de borboleta de acordo com o passo da etapa
+    return '0;
+  endfunction
+
+  // ===========================================================================
+  // Tasks de Processamento e Controle Interno
+  // ===========================================================================
+
+  // TODO: Task para reset e sanitização de registradores internos de estado
+  task automatic reset_internal_registers();
+    begin
+      // TODO: Limpar registradores sensíveis e acumuladores internos
+    end
+  endtask
+
+  // TODO: Task para execução de rotina de zeroização de emergência
+  task automatic perform_zeroization();
+    begin
+      // TODO: Sobrescrever todos os registradores temporários com zeros
+    end
+  endtask
+
+  // ===========================================================================
+  // Lógica de Atribuição de Saídas
+  // ===========================================================================
+  assign ready_o     = (fsm_state == ST_NTT_IDLE);
+  assign rd_addr_a_o = '0;
+  assign rd_addr_b_o = '0;
+  assign wr_en_o     = 1'b0;
+  assign wr_addr_o   = '0;
+  assign wr_data_o   = '0;
+
+endmodule : mlkem_ntt
