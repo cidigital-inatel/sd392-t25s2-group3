@@ -228,3 +228,85 @@ module mlkem_basemul_unit
   assign c1_o = '0;
 
 endmodule : mlkem_basemul_unit
+
+
+// =============================================================================
+// Submódulo 5: Memória SRAM Interna para Coeficientes Polinomials
+// Rastreabilidade: Armazenamento temporário de R_q e T_q durante NTT/INTT
+// =============================================================================
+module mlkem_poly_ram_buffer
+  import mlkem_ntt_pkg::*;
+(
+  input  logic                        clk_i,
+  input  logic                        we_a_i,
+  input  logic [MLKEM_LOG2_N-1:0]     addr_a_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] wdata_a_i,
+  output logic [MLKEM_DATA_WIDTH-1:0] rdata_a_o,
+
+  input  logic                        we_b_i,
+  input  logic [MLKEM_LOG2_N-1:0]     addr_b_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] wdata_b_i,
+  output logic [MLKEM_DATA_WIDTH-1:0] rdata_b_o,
+
+  input  logic                        zeroize_i // Pulso de zeroização para sanitização
+);
+
+  // TODO: Array de memória SRAM dual-port de 256 palavras x 16 bits.
+  // logic [MLKEM_DATA_WIDTH-1:0] ram_matrix [0:MLKEM_N-1];
+
+  // TODO: Implementar leitura/escrita dual-port e rotina de zeroização (flush).
+
+  assign rdata_a_o = '0;
+  assign rdata_b_o = '0;
+
+endmodule : mlkem_poly_ram_buffer
+
+
+// =============================================================================
+// Submódulo 6: FSM de Controle Sequencial da NTT / INTT / BaseMul
+// Rastreabilidade: Orquestração de loops do Algoritmo 8, 9 e 10 (FIPS 203)
+// =============================================================================
+module mlkem_ntt_fsm
+  import mlkem_ntt_pkg::*;
+(
+  input  logic           clk_i,
+  input  logic           rst_ni,
+  input  ntt_op_cmd_e    cmd_op_i,
+  input  logic           start_i,
+  output ntt_fsm_state_e state_o,
+  output logic [2:0]     stage_counter_o, // Contador de camadas (0 a 6)
+  output logic [7:0]     poly_index_o,    // Índice dos coeficientes
+  output logic [6:0]     zeta_index_o,    // Índice da tabela de zetas
+  output logic           busy_o,
+  output logic           done_o,
+  output logic           error_o
+);
+
+  // TODO: Declarar sinalização interna de controle de estado.
+  ntt_fsm_state_e current_state, next_state;
+
+  // TODO: Transições de estado da FSM:
+  //       ST_NTT_IDLE -> ST_NTT_FETCH -> ST_NTT_STAGE_CALC -> ST_NTT_STORE -> ST_NTT_DONE
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      current_state <= ST_NTT_RESET;
+    end else begin
+      current_state <= next_state;
+    end
+  end
+
+  always_comb begin
+    // TODO: Lógica de próximo estado (next_state) e atribuição dos contadores de loop.
+    next_state = current_state;
+  end
+
+  assign state_o         = current_state;
+  assign stage_counter_o = '0;
+  assign poly_index_o    = '0;
+  assign zeta_index_o    = '0;
+  assign busy_o          = '0;
+  assign done_o          = '0;
+  assign error_o         = '0;
+
+endmodule : mlkem_ntt_fsm
