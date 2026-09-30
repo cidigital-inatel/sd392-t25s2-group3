@@ -149,3 +149,82 @@ module mlkem_zeta_rom
   assign zeta_inv_val_o = '0;
 
 endmodule : mlkem_zeta_rom
+
+
+// =============================================================================
+// Submódulo 3: Unidade Borboleta (Butterfly Unit - Cooley-Tukey / Gentleman-Sande)
+// Rastreabilidade: FIPS 203 §4.3 (Algoritmo 8: NTT e Algoritmo 9: INTT)
+// =============================================================================
+module mlkem_butterfly_unit
+  import mlkem_ntt_pkg::*;
+(
+  input  logic                        clk_i,
+  input  logic                        rst_ni,
+  input  logic                        is_inverse_i,  // 0: Cooley-Tukey (NTT), 1: Gentleman-Sande (INTT)
+  input  logic [MLKEM_DATA_WIDTH-1:0] coeff_a_i,     // Coeficiente superior
+  input  logic [MLKEM_DATA_WIDTH-1:0] coeff_b_i,     // Coeficiente inferior
+  input  logic [MLKEM_DATA_WIDTH-1:0] zeta_factor_i, // Fator de torção (zeta)
+  output logic [MLKEM_DATA_WIDTH-1:0] coeff_a_o,     // Resultado superior
+  output logic [MLKEM_DATA_WIDTH-1:0] coeff_b_o      // Resultado inferior
+);
+
+  // TODO: Declarar registradores de pipeline para operação borboleta.
+
+  // TODO: Instanciar primitiva mlkem_modular_arith ou lógica customizada de borboleta.
+
+  // TODO: Lógica de seleção do modo de borboleta:
+  //   - Cooley-Tukey (NTT Direta):
+  //       A' = A + B * zeta (mod q)
+  //       B' = A - B * zeta (mod q)
+  //   - Gentleman-Sande (INTT Inversa):
+  //       A' = A + B (mod q)
+  //       B' = (A - B) * zeta (mod q)
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      // TODO: Limpeza de registradores de borboleta
+    end else begin
+      // TODO: Atualização de estados/pipeline da borboleta
+    end
+  end
+
+  assign coeff_a_o = '0;
+  assign coeff_b_o = '0;
+
+endmodule : mlkem_butterfly_unit
+
+
+// =============================================================================
+// Submódulo 4: Unidade de Multiplicação Caso-Base (BaseCase Multiply Unit)
+// Rastreabilidade: FIPS 203 Algoritmo 10 (BaseCaseMultiply)
+// =============================================================================
+module mlkem_basemul_unit
+  import mlkem_ntt_pkg::*;
+(
+  input  logic                        clk_i,
+  input  logic                        rst_ni,
+  input  logic [MLKEM_DATA_WIDTH-1:0] a0_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] a1_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] b0_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] b1_i,
+  input  logic [MLKEM_DATA_WIDTH-1:0] gamma_i, // Fator gamma para o polinômio de grau 1
+  output logic [MLKEM_DATA_WIDTH-1:0] c0_o,   // Coeficiente c0 de saída
+  output logic [MLKEM_DATA_WIDTH-1:0] c1_o    // Coeficiente c1 de saída
+);
+
+  // TODO: Implementar equações do Algoritmo 10 da FIPS 203:
+  //   c0 = (a0*b0 + a1*b1*gamma) mod q
+  //   c1 = (a0*b1 + a1*b0) mod q
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      // TODO: Reseta registradores do basemul
+    end else begin
+      // TODO: Pipeline de multiplicação basecase
+    end
+  end
+
+  assign c0_o = '0;
+  assign c1_o = '0;
+
+endmodule : mlkem_basemul_unit
