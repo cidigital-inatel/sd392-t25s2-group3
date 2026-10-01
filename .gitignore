@@ -53,3 +53,9 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# Arquivos gerados pelo Vivado e pelo XSim
+/work/
+/vivado*.jou
+/vivado*.log
+/dfx_runtime.txt
