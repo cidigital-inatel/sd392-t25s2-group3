@@ -30,7 +30,7 @@ class test extends test_base;
 
         phase.raise_objection(this, "Rodando tráfego gray-code randomizado");
         vif.assert_reset();
-        seq = base_sequence::type_id::create("random_sequence");
+        seq = sequence_base::type_id::create("random_sequence");
         seq.start(env_h.agents[0].sequencer_h);
 
         // Permitir que a última saída registrada seja observada antes de finalizar o teste
