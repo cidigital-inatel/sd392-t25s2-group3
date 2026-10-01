@@ -70,26 +70,26 @@ interface axi_lite_bfm #(
     task automatic write_reg(input logic [ADDR_WIDTH-1:0] addr,
                              input logic [DATA_WIDTH-1:0] data,
                              output logic [1:0] resp);
-        // Endereço da transação
+        // Mantem o endereco estavel ate o handshake na borda de subida.
+        @(negedge ACLK);
         AWADDR  = addr;
         AWVALID = 1'b1;
-
-        // Dados da transação
-        WDATA   = data;
-        WVALID  = 1'b1;
-
-        // Espera handshake de endereço
-        while (!(AWVALID && AWREADY)) @(posedge ACLK);
+        do @(posedge ACLK); while (!AWREADY);
+        @(negedge ACLK);
         AWVALID = 1'b0;
 
-        // Espera handshake de dados
-        while (!(WVALID && WREADY)) @(posedge ACLK);
+        // Mantem o dado estavel ate o handshake na borda de subida.
+        WDATA  = data;
+        WVALID = 1'b1;
+        do @(posedge ACLK); while (!WREADY);
+        @(negedge ACLK);
         WVALID = 1'b0;
 
-        // Espera resposta do DUT
+        // Aguarda e captura a resposta de escrita.
         BREADY = 1'b1;
-        while (!(BVALID && BREADY)) @(posedge ACLK);
+        do @(posedge ACLK); while (!BVALID);
         resp = BRESP;
+        @(negedge ACLK);
         BREADY = 1'b0;
     endtask
 
@@ -97,16 +97,18 @@ interface axi_lite_bfm #(
     task automatic read_reg(input logic [ADDR_WIDTH-1:0] addr,
                             output logic [DATA_WIDTH-1:0] data,
                             output logic [1:0] resp);
+        @(negedge ACLK);
         ARADDR  = addr;
         ARVALID = 1'b1;
-
-        while (!(ARVALID && ARREADY)) @(posedge ACLK);
+        do @(posedge ACLK); while (!ARREADY);
+        @(negedge ACLK);
         ARVALID = 1'b0;
 
         RREADY = 1'b1;
-        while (!(RVALID && RREADY)) @(posedge ACLK);
+        do @(posedge ACLK); while (!RVALID);
         data = RDATA;
         resp = RRESP;
+        @(negedge ACLK);
         RREADY = 1'b0;
     endtask
 endinterface
