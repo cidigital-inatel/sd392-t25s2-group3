@@ -58,6 +58,103 @@ package mlkem_keccak_pkg;
   localparam int KECCAK_LANE_BITS  = 64;
   localparam int KECCAK_ROUNDS     = 24;    // 24 rodadas por permutação f[1600]
 
+  // --------------------------------------------------------------------------
+  // Função auxiliar: Rotação circular de bits à esquerda para palavras de
+  // 64 bits. Usada pela etapa Rho e pela etapa Theta da FIPS 202 §3.2.
+  // --------------------------------------------------------------------------
+  function automatic logic [63:0] keccak_rotl64(
+    input logic [63:0] val_i,
+    input int unsigned shift_i
+  );
+    int unsigned sh;
+    begin
+      sh = shift_i % 64;
+      if (sh == 0) begin
+        keccak_rotl64 = val_i;
+      end else begin
+        keccak_rotl64 = (val_i << sh) | (val_i >> (64 - sh));
+      end
+    end
+  endfunction : keccak_rotl64
+
+  // --------------------------------------------------------------------------
+  // Função auxiliar: Constante de rodada RC[i_r], conforme FIPS 202 §3.2.5.
+  // A constante é injetada no lane A[0,0] durante a etapa Iota.
+  // --------------------------------------------------------------------------
+  function automatic logic [63:0] keccak_round_constant(
+    input logic [4:0] round_idx_i
+  );
+    begin
+      unique case (round_idx_i)
+        5'd0:  keccak_round_constant = 64'h0000_0000_0000_0001;
+        5'd1:  keccak_round_constant = 64'h0000_0000_0000_8082;
+        5'd2:  keccak_round_constant = 64'h8000_0000_0000_808A;
+        5'd3:  keccak_round_constant = 64'h8000_0000_8000_8000;
+        5'd4:  keccak_round_constant = 64'h0000_0000_0000_808B;
+        5'd5:  keccak_round_constant = 64'h0000_0000_8000_0001;
+        5'd6:  keccak_round_constant = 64'h8000_0000_8000_8081;
+        5'd7:  keccak_round_constant = 64'h8000_0000_0000_8009;
+        5'd8:  keccak_round_constant = 64'h0000_0000_0000_008A;
+        5'd9:  keccak_round_constant = 64'h0000_0000_0000_0088;
+        5'd10: keccak_round_constant = 64'h0000_0000_8000_8009;
+        5'd11: keccak_round_constant = 64'h0000_0000_8000_000A;
+        5'd12: keccak_round_constant = 64'h0000_0000_8000_808B;
+        5'd13: keccak_round_constant = 64'h8000_0000_0000_008B;
+        5'd14: keccak_round_constant = 64'h8000_0000_0000_8089;
+        5'd15: keccak_round_constant = 64'h8000_0000_0000_8003;
+        5'd16: keccak_round_constant = 64'h8000_0000_0000_8002;
+        5'd17: keccak_round_constant = 64'h8000_0000_0000_0080;
+        5'd18: keccak_round_constant = 64'h0000_0000_0000_800A;
+        5'd19: keccak_round_constant = 64'h8000_0000_8000_000A;
+        5'd20: keccak_round_constant = 64'h8000_0000_8000_8081;
+        5'd21: keccak_round_constant = 64'h8000_0000_0000_8080;
+        5'd22: keccak_round_constant = 64'h0000_0000_8000_0001;
+        5'd23: keccak_round_constant = 64'h8000_0000_8000_8008;
+        default: keccak_round_constant = 64'h0;
+      endcase
+    end
+  endfunction : keccak_round_constant
+
+  // --------------------------------------------------------------------------
+  // Função auxiliar: Deslocamentos da etapa Rho, conforme FIPS 202,
+  // Tabela 2. Cada lane A[x,y] possui rotação fixa própria.
+  // --------------------------------------------------------------------------
+  function automatic int unsigned keccak_rho_offset(
+    input int unsigned x_i,
+    input int unsigned y_i
+  );
+    begin
+      unique case ((5 * y_i) + x_i)
+        0:  keccak_rho_offset = 0;
+        1:  keccak_rho_offset = 1;
+        2:  keccak_rho_offset = 62;
+        3:  keccak_rho_offset = 28;
+        4:  keccak_rho_offset = 27;
+        5:  keccak_rho_offset = 36;
+        6:  keccak_rho_offset = 44;
+        7:  keccak_rho_offset = 6;
+        8:  keccak_rho_offset = 55;
+        9:  keccak_rho_offset = 20;
+        10: keccak_rho_offset = 3;
+        11: keccak_rho_offset = 10;
+        12: keccak_rho_offset = 43;
+        13: keccak_rho_offset = 25;
+        14: keccak_rho_offset = 39;
+        15: keccak_rho_offset = 41;
+        16: keccak_rho_offset = 45;
+        17: keccak_rho_offset = 15;
+        18: keccak_rho_offset = 21;
+        19: keccak_rho_offset = 8;
+        20: keccak_rho_offset = 18;
+        21: keccak_rho_offset = 2;
+        22: keccak_rho_offset = 61;
+        23: keccak_rho_offset = 56;
+        24: keccak_rho_offset = 14;
+        default: keccak_rho_offset = 0;
+      endcase
+    end
+  endfunction : keccak_rho_offset
+
 endpackage : mlkem_keccak_pkg
 
 
