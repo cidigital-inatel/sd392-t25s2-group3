@@ -45,61 +45,109 @@
 //   implementação interna do DUT.
 //
 // ============================================================================
+// DUT:
+//   mlkem_ntt
+//
+// Interface:
+//   clk_i
+//   rst_ni
+//   start_i
+//   cmd_op_i
+//   ready_o
+//   busy_o
+//   done_o
+//   error_o
+//   rd_addr_a_o
+//   rd_data_a_i
+//   rd_addr_b_o
+//   rd_data_b_i
+//   wr_en_o
+//   wr_addr_o
+//   wr_data_o
+//   zeroize_i
+// ============================================================================
 
 `timescale 1ns/1ps
 
 module ntt_tb;
 
     // ========================================================================
+    // IMPORTAÇÃO DO PACKAGE
+    // ========================================================================
+
+    import mlkem_ntt_pkg::*;
+
+    // ========================================================================
     // PARÂMETROS
     // ========================================================================
 
-    localparam int N  = 256;
-    localparam int Q  = 3329;
-    localparam int DW = 12;
+    localparam int N  = MLKEM_N;
+    localparam int Q  = MLKEM_Q;
+    localparam int DW = MLKEM_DATA_WIDTH;
 
-    // Número máximo de ciclos permitidos para o DUT completar uma operação.
-    // O valor deve ser ajustado posteriormente de acordo com a arquitetura
-    // definitiva do RTL.
     localparam int TIMEOUT_CYCLES = 20000;
 
     // ========================================================================
-    // SINAIS DO TESTBENCH
+    // CLOCK E RESET
     // ========================================================================
 
     logic clk;
-    logic rst;
+    logic rst_n;
 
-    logic start;
-    logic valid_in;
-    logic [DW-1:0] data_in;
+    // ========================================================================
+    // INTERFACE DE COMANDO
+    // ========================================================================
 
-    logic valid_out;
-    logic [DW-1:0] data_out;
+    logic        start;
+    ntt_op_cmd_e cmd_op;
 
+    logic ready;
     logic busy;
     logic done;
+    logic error;
+
+    // ========================================================================
+    // INTERFACE POLINÔMIO A
+    // ========================================================================
+
+    logic [MLKEM_LOG2_N-1:0] rd_addr_a;
+    logic [DW-1:0]           rd_data_a;
+
+    // ========================================================================
+    // INTERFACE POLINÔMIO B
+    // ========================================================================
+
+    logic [MLKEM_LOG2_N-1:0] rd_addr_b;
+    logic [DW-1:0]           rd_data_b;
+
+    // ========================================================================
+    // INTERFACE DE SAÍDA
+    // ========================================================================
+
+    logic                    wr_en;
+    logic [MLKEM_LOG2_N-1:0] wr_addr;
+    logic [DW-1:0]           wr_data;
+
+    // ========================================================================
+    // ZEROIZAÇÃO
+    // ========================================================================
+
+    logic zeroize;
 
     // ========================================================================
     // MEMÓRIAS DO TESTBENCH
     // ========================================================================
 
-    // Vetor enviado ao DUT.
-    logic [DW-1:0] input_poly [0:N-1];
+    logic [DW-1:0] input_poly_a [0:N-1];
+    logic [DW-1:0] input_poly_b [0:N-1];
 
-    // Resultado esperado calculado pelo modelo de referência.
-    logic [DW-1:0] expected_poly [0:N-1];
-
-    // Resultado recebido do DUT.
     logic [DW-1:0] output_poly [0:N-1];
 
     // ========================================================================
-    // CONTADORES / FLAGS
+    // CONTADORES
     // ========================================================================
 
     integer output_count;
-    integer error_count;
-
     integer test_count;
     integer pass_count;
     integer fail_count;
@@ -107,362 +155,88 @@ module ntt_tb;
     // ========================================================================
     // INSTÂNCIA DO DUT
     // ========================================================================
-    // Interface esperada:
-    //   clk
-    //   rst
-    //   start
-    //   valid_in
-    //   data_in
-    //   valid_out
-    //   data_out
-    //   busy
-    //   done
-    // ========================================================================
 
-    mlkem_ntt #(
-        .N    (N),
-        .Q    (Q),
-        .DW   (DW),
-        .ADDRW(8)
-    ) dut (
-        .clk      (clk),
-        .rst      (rst),
+    mlkem_ntt dut (
 
-        .start    (start),
-        .valid_in (valid_in),
-        .data_in  (data_in),
+        // Clock / Reset
+        .clk_i       (clk),
+        .rst_ni      (rst_n),
 
-        .valid_out(valid_out),
-        .data_out (data_out),
+        // Comando
+        .start_i     (start),
+        .cmd_op_i    (cmd_op),
 
-        .busy     (busy),
-        .done     (done)
+        // Status
+        .ready_o     (ready),
+        .busy_o      (busy),
+        .done_o      (done),
+        .error_o     (error),
+
+        // Polinômio A
+        .rd_addr_a_o (rd_addr_a),
+        .rd_data_a_i (rd_data_a),
+
+        // Polinômio B
+        .rd_addr_b_o (rd_addr_b),
+        .rd_data_b_i (rd_data_b),
+
+        // Resultado
+        .wr_en_o     (wr_en),
+        .wr_addr_o   (wr_addr),
+        .wr_data_o   (wr_data),
+
+        // Zeroização
+        .zeroize_i   (zeroize)
     );
 
     // ========================================================================
-    // GERAÇÃO DO CLOCK
-    // Clock de 10 ns: frequência = 100 MHz
+    // CLOCK
     // ========================================================================
 
     initial begin
+
         clk = 1'b0;
 
         forever begin
             #5 clk = ~clk;
         end
+
     end
 
     // ========================================================================
-    // TABELA DE ZETAS
-    // ========================================================================
-    // Valores definidos no FIPS 203, Appendix A.
-    // O algoritmo da NTT utiliza:
-    // zeta = zetas[k]
-    // iniciando em: k = 1
-    // Portanto, zetas[0] não é utilizada pela NTT direta.
+    // MODELO DE MEMÓRIA DO POLINÔMIO A
     // ========================================================================
 
-    function automatic logic [DW-1:0] get_zeta(input integer index);
+    always_comb begin
 
-        begin
+        rd_data_a = input_poly_a[rd_addr_a];
 
-            case (index)
-
-                0   : get_zeta = 12'd1;
-                1   : get_zeta = 12'd1729;
-                2   : get_zeta = 12'd2580;
-                3   : get_zeta = 12'd3289;
-                4   : get_zeta = 12'd2642;
-                5   : get_zeta = 12'd630;
-                6   : get_zeta = 12'd1897;
-                7   : get_zeta = 12'd848;
-
-                8   : get_zeta = 12'd1062;
-                9   : get_zeta = 12'd1919;
-                10  : get_zeta = 12'd193;
-                11  : get_zeta = 12'd797;
-                12  : get_zeta = 12'd2786;
-                13  : get_zeta = 12'd3260;
-                14  : get_zeta = 12'd569;
-                15  : get_zeta = 12'd1746;
-
-                16  : get_zeta = 12'd296;
-                17  : get_zeta = 12'd2447;
-                18  : get_zeta = 12'd1339;
-                19  : get_zeta = 12'd1476;
-                20  : get_zeta = 12'd3046;
-                21  : get_zeta = 12'd56;
-                22  : get_zeta = 12'd2240;
-                23  : get_zeta = 12'd1333;
-
-                24  : get_zeta = 12'd1426;
-                25  : get_zeta = 12'd2094;
-                26  : get_zeta = 12'd535;
-                27  : get_zeta = 12'd2882;
-                28  : get_zeta = 12'd2393;
-                29  : get_zeta = 12'd2879;
-                30  : get_zeta = 12'd1974;
-                31  : get_zeta = 12'd821;
-
-                32  : get_zeta = 12'd289;
-                33  : get_zeta = 12'd331;
-                34  : get_zeta = 12'd3253;
-                35  : get_zeta = 12'd1756;
-                36  : get_zeta = 12'd1197;
-                37  : get_zeta = 12'd2304;
-                38  : get_zeta = 12'd2277;
-                39  : get_zeta = 12'd2055;
-
-                40  : get_zeta = 12'd650;
-                41  : get_zeta = 12'd1977;
-                42  : get_zeta = 12'd2513;
-                43  : get_zeta = 12'd632;
-                44  : get_zeta = 12'd2865;
-                45  : get_zeta = 12'd33;
-                46  : get_zeta = 12'd1320;
-                47  : get_zeta = 12'd1915;
-
-                48  : get_zeta = 12'd2319;
-                49  : get_zeta = 12'd1435;
-                50  : get_zeta = 12'd807;
-                51  : get_zeta = 12'd452;
-                52  : get_zeta = 12'd1438;
-                53  : get_zeta = 12'd2868;
-                54  : get_zeta = 12'd1534;
-                55  : get_zeta = 12'd2402;
-
-                56  : get_zeta = 12'd2647;
-                57  : get_zeta = 12'd2617;
-                58  : get_zeta = 12'd1481;
-                59  : get_zeta = 12'd648;
-                60  : get_zeta = 12'd2474;
-                61  : get_zeta = 12'd3110;
-                62  : get_zeta = 12'd1227;
-                63  : get_zeta = 12'd910;
-
-                64  : get_zeta = 12'd17;
-                65  : get_zeta = 12'd2761;
-                66  : get_zeta = 12'd583;
-                67  : get_zeta = 12'd2649;
-                68  : get_zeta = 12'd1637;
-                69  : get_zeta = 12'd723;
-                70  : get_zeta = 12'd2288;
-                71  : get_zeta = 12'd1100;
-
-                72  : get_zeta = 12'd1409;
-                73  : get_zeta = 12'd2662;
-                74  : get_zeta = 12'd3281;
-                75  : get_zeta = 12'd233;
-                76  : get_zeta = 12'd756;
-                77  : get_zeta = 12'd2156;
-                78  : get_zeta = 12'd3015;
-                79  : get_zeta = 12'd3050;
-
-                80  : get_zeta = 12'd1703;
-                81  : get_zeta = 12'd1651;
-                82  : get_zeta = 12'd2789;
-                83  : get_zeta = 12'd1789;
-                84  : get_zeta = 12'd1847;
-                85  : get_zeta = 12'd952;
-                86  : get_zeta = 12'd1461;
-                87  : get_zeta = 12'd2687;
-
-                88  : get_zeta = 12'd939;
-                89  : get_zeta = 12'd2308;
-                90  : get_zeta = 12'd2437;
-                91  : get_zeta = 12'd2388;
-                92  : get_zeta = 12'd733;
-                93  : get_zeta = 12'd2337;
-                94  : get_zeta = 12'd268;
-                95  : get_zeta = 12'd641;
-
-                96  : get_zeta = 12'd1584;
-                97  : get_zeta = 12'd2298;
-                98  : get_zeta = 12'd2037;
-                99  : get_zeta = 12'd3220;
-                100 : get_zeta = 12'd375;
-                101 : get_zeta = 12'd2549;
-                102 : get_zeta = 12'd2090;
-                103 : get_zeta = 12'd1645;
-
-                104 : get_zeta = 12'd1063;
-                105 : get_zeta = 12'd319;
-                106 : get_zeta = 12'd2773;
-                107 : get_zeta = 12'd757;
-                108 : get_zeta = 12'd2099;
-                109 : get_zeta = 12'd561;
-                110 : get_zeta = 12'd2466;
-                111 : get_zeta = 12'd2594;
-
-                112 : get_zeta = 12'd2804;
-                113 : get_zeta = 12'd1092;
-                114 : get_zeta = 12'd403;
-                115 : get_zeta = 12'd1026;
-                116 : get_zeta = 12'd1143;
-                117 : get_zeta = 12'd2150;
-                118 : get_zeta = 12'd2775;
-                119 : get_zeta = 12'd886;
-
-                120 : get_zeta = 12'd1722;
-                121 : get_zeta = 12'd1212;
-                122 : get_zeta = 12'd1874;
-                123 : get_zeta = 12'd1029;
-                124 : get_zeta = 12'd2110;
-                125 : get_zeta = 12'd2935;
-                126 : get_zeta = 12'd885;
-                127 : get_zeta = 12'd2154;
-
-                default:
-                    get_zeta = 12'd0;
-
-            endcase
-        end
-    endfunction
+    end
 
     // ========================================================================
-    // FUNÇÃO DE REDUÇÃO MODULAR
-    // Retorna: value mod Q garantindo resultado no intervalo: 0 <= resultado < Q
+    // MODELO DE MEMÓRIA DO POLINÔMIO B
     // ========================================================================
 
-    function automatic logic [DW-1:0]
-        mod_q(input integer value);
+    always_comb begin
 
-        integer temp;
+        rd_data_b = input_poly_b[rd_addr_b];
 
-        begin
+    end
 
-            temp = value % Q;
+    // ========================================================================
+    // CAPTURA DA SAÍDA DO DUT
+    // ========================================================================
 
-            if (temp < 0)
-                temp = temp + Q;
+    always @(posedge clk) begin
 
-            mod_q = temp[DW-1:0];
+        if (wr_en) begin
+
+            output_poly[wr_addr] <= wr_data;
+            $display("[WRITE] addr=%0d data=%0d", wr_addr, wr_data);
 
         end
 
-    endfunction
-
-    // ========================================================================
-    // MODELO DE REFERÊNCIA DA NTT
-    // Implementação equivalente ao algoritmo iterativo da NTT.
-    // Pseudocódigo:k = 1
-    //   for len = 128 ... 2:
-    //       for start = 0 ... 256:
-    //           zeta = zetas[k]
-    //           for j = start ... start + len:
-    //               t = zeta * f[j + len] mod q
-    //               f[j + len] = f[j] - t mod q
-    //               f[j] = f[j] + t mod q
-    // ========================================================================
-
-    task automatic calculate_reference;
-
-        integer len;
-        integer start_addr;
-        integer j;
-        integer k;
-
-        integer product;
-        integer t;
-
-        integer a_temp;
-        integer b_temp;
-
-        logic [DW-1:0] ref [0:N-1];
-
-        begin
-
-            // ---------------------------------------------------------------
-            // Copia o vetor de entrada para a memória interna do modelo.
-            // ---------------------------------------------------------------
-
-            for (j = 0; j < N; j = j + 1) begin
-                ref[j] = input_poly[j];
-            end
-
-            // ---------------------------------------------------------------
-            // Primeiro índice da tabela de zetas utilizado pela NTT.
-            // ---------------------------------------------------------------
-
-            k = 1;
-
-            // ---------------------------------------------------------------
-            // Sete estágios da NTT.
-            // ---------------------------------------------------------------
-
-            for (len = 128; len >= 2; len = len / 2) begin
-
-                // -----------------------------------------------------------
-                // Cada estágio possui: N / (2 * len)
-                // Cada bloco utiliza uma única zeta.
-                // -----------------------------------------------------------
-
-                for (
-                    start_addr = 0;
-                    start_addr < N;
-                    start_addr = start_addr + (2 * len)
-                ) begin
-
-                    // -------------------------------------------------------
-                    // Obtém a zeta correspondente ao bloco atual.
-                    // -------------------------------------------------------
-
-                    logic [DW-1:0] zeta;
-
-                    zeta = get_zeta(k);
-
-                    k = k + 1;
-
-                    // -------------------------------------------------------
-                    // Processa todas as butterflies do bloco.
-                    // -------------------------------------------------------
-
-                    for (
-                        j = start_addr;
-                        j < start_addr + len;
-                        j = j + 1
-                    ) begin
-
-                        // ---------------------------------------------------
-                        // Multiplicação:                       
-                        // t = zeta * f[j + len] mod Q
-                        // ---------------------------------------------------
-
-                        product = zeta * ref[j + len];
-
-                        t = product % Q;
-
-                        // ---------------------------------------------------
-                        // Butterfly:                   
-                        //       a' = a + t
-                        //       b' = a - t
-                        // ---------------------------------------------------
-
-                        a_temp = ref[j] + t;
-                        b_temp = ref[j] - t;
-
-                        // ---------------------------------------------------
-                        // Redução modular.
-                        // ---------------------------------------------------
-
-                        ref[j]      = mod_q(a_temp);
-                        ref[j + len] = mod_q(b_temp);
-
-                    end
-
-                end
-
-            end
-
-            // ---------------------------------------------------------------
-            // Copia resultado do modelo para expected_poly.
-            // ---------------------------------------------------------------
-
-            for (j = 0; j < N; j = j + 1) begin
-                expected_poly[j] = ref[j];
-            end
-        end
-    endtask
+    end
 
     // ========================================================================
     // RESET DO DUT
@@ -472,198 +246,123 @@ module ntt_tb;
 
         begin
 
-            rst      = 1'b1;
-            start    = 1'b0;
-            valid_in = 1'b0;
-            data_in  = '0;
+            $display("");
+            $display("---------------------------------------------");
+            $display("Aplicando reset...");
+            $display("---------------------------------------------");
+
+            rst_n  = 1'b0;
+            start  = 1'b0;
+            cmd_op = OP_NTT_IDLE;
+            zeroize = 1'b0;
 
             repeat (5)
                 @(posedge clk);
 
-            rst = 1'b0;
+            rst_n = 1'b1;
+
             @(posedge clk);
 
+            $display("Reset liberado.");
+
         end
+
     endtask
 
     // ========================================================================
-    // ENVIO DO VETOR DE ENTRADA
-    // ========================================================================
-    // Protocolo adotado pelo testbench:
-    //   1. start = 1 por um ciclo;
-    //   2. start = 0;
-    //   3. 256 coeficientes são enviados;
-    //   4. valid_in indica quando data_in é válido.
-    // IMPORTANTE:
-    // O protocolo deve ser compatível com o mlkem_ntt.sv.
+    // INICIALIZAÇÃO DOS POLINÔMIOS
     // ========================================================================
 
-    task automatic send_input;
+    task automatic clear_memories;
 
         integer i;
 
         begin
-
-            // ---------------------------------------------------------------
-            // Solicita início da operação.
-            // ---------------------------------------------------------------
-
-            @(posedge clk);
-
-            start    <= 1'b1;
-            valid_in <= 1'b0;
-
-            @(posedge clk);
-
-            start <= 1'b0;
-
-            // ---------------------------------------------------------------
-            // Envia os 256 coeficientes.
-            // ---------------------------------------------------------------
 
             for (i = 0; i < N; i = i + 1) begin
 
-                @(posedge clk);
-
-                valid_in <= 1'b1;
-                data_in  <= input_poly[i];
+                input_poly_a[i] = '0;
+                input_poly_b[i] = '0;
+                output_poly[i]  = '0;
 
             end
 
-            // ---------------------------------------------------------------
-            // Finaliza transmissão.
-            // ---------------------------------------------------------------
+        end
 
+    endtask
+
+    // ========================================================================
+    // ENVIA COMANDO AO DUT
+    // ========================================================================
+
+    task automatic send_command(
+        input ntt_op_cmd_e operation
+    );
+
+        begin
+
+            // Aguarda o DUT ficar pronto
+            while (!ready)
+                @(posedge clk);
+
+            // Configura operação
             @(posedge clk);
 
-            valid_in <= 1'b0;
-            data_in  <= '0;
-
-        end
-    endtask
-
-    // ========================================================================
-    // RECEPÇÃO DO RESULTADO
-    // ========================================================================
-    // Cada ciclo em que valid_out = 1 representa um coeficiente válido.
-    // O testbench armazena:
-    //   output_poly[0]
-    //   output_poly[1]...
-    //   output_poly[255]
-    // ========================================================================
-
-    task automatic receive_output;
-
-        integer cycle_count;
-
-        begin
-
-            output_count = 0;
-            cycle_count  = 0;
-
-            while (output_count < N) begin
-
-                @(posedge clk);
-
-                cycle_count = cycle_count + 1;
-
-                // -----------------------------------------------------------
-                // Verifica timeout.
-                // -----------------------------------------------------------
-
-                if (cycle_count > TIMEOUT_CYCLES) begin
-
-                    $display("");
-                    $display("=================================================");
-                    $display("ERRO: TIMEOUT aguardando resultado da NTT");
-                    $display("=================================================");
-                    $display("");
-
-                    $fatal;
-
-                end
-
-                // -----------------------------------------------------------
-                // Recebe coeficiente.
-                // -----------------------------------------------------------
-
-                if (valid_out) begin
-
-                    output_poly[output_count] = data_out;
-                    output_count = output_count + 1;
-
-                end
-            end
-
-            // Aguarda o término da operação, caso o DUT utilize done.
-            // Se o DUT gerar done antes do último valid_out, o while abaixo
-            // simplesmente não será necessário para a funcionalidade principal.
-            // A verificação de done é feita separadamente.
-        end
-    endtask
-
-    // ========================================================================
-    // COMPARAÇÃO DUT x REFERÊNCIA
-    // ========================================================================
-
-    task automatic compare_result;
-
-        integer i;
-        integer errors;
-
-        begin
-
-            errors = 0;
+            cmd_op <= operation;
+            start  <= 1'b1;
 
             $display("");
-            $display("-------------------------------------------------");
-            $display("Comparando resultado da NTT...");
-            $display("-------------------------------------------------");
+            $display("[CMD] Operacao solicitada = %b", operation);
 
-            for (i = 0; i < N; i = i + 1) begin
+            // Pulso de START
+            @(posedge clk);
+            start <= 1'b0;
 
-                if (output_poly[i] !== expected_poly[i]) begin
-
-                    errors = errors + 1;
-
-                    $display("ERRO[%0d] : esperado = %0d | recebido = %0d", i, expected_poly[i], output_poly[i]);
-
-                end
-            end
-
-            // ---------------------------------------------------------------
-            // Resultado do teste.
-            // ---------------------------------------------------------------
-
-            if (errors == 0) begin
-
-                $display("");
-                $display("*************************************************");
-                $display("*                 TESTE PASSOU                  *");
-                $display("*************************************************");
-                $display("");
-
-                pass_count = pass_count + 1;
-
-            end
-            else begin
-
-                $display("");
-                $display("*************************************************");
-                $display("*                 TESTE FALHOU                 *");
-                $display("* Erros encontrados: %0d                       *", errors);
-                $display("*************************************************");
-                $display("");
-
-                fail_count = fail_count + 1;
-
-            end
         end
+
     endtask
 
     // ========================================================================
-    // TESTE 001
-    // RESET
+    // AGUARDA CONCLUSÃO
+    // ========================================================================
+
+    task automatic wait_done;
+
+        integer cycles;
+
+        begin
+
+            cycles = 0;
+
+            while (!done) begin
+
+                @(posedge clk);
+
+                cycles = cycles + 1;
+
+                if (cycles >= TIMEOUT_CYCLES) begin
+
+                    $display("");
+                    $display("=============================================");
+                    $display("ERRO: TIMEOUT");
+                    $display("=============================================");
+
+                    fail_count = fail_count + 1;
+
+                    return;
+
+                end
+
+            end
+
+            $display("[DONE] Operacao concluida em %0d ciclos", cycles);
+
+        end
+
+    endtask
+
+    // ========================================================================
+    // TESTE 001 - RESET
     // ========================================================================
 
     task automatic test_reset;
@@ -673,42 +372,36 @@ module ntt_tb;
             test_count = test_count + 1;
 
             $display("");
-            $display("=================================================");
+            $display("=============================================");
             $display("TESTE %0d - RESET", test_count);
-            $display("=================================================");
+            $display("=============================================");
 
             reset_dut();
 
-            if (
-                busy === 1'b0 &&
-                done === 1'b0 &&
-                valid_out === 1'b0
-            ) begin
+            if (busy  === 1'b0 && done  === 1'b0 && error === 1'b0) begin
 
-                $display("PASS: DUT permaneceu inativo após reset.");
+                $display("PASS: sinais de controle em estado inicial.");
                 pass_count = pass_count + 1;
 
             end
             else begin
 
-                $display("FAIL: sinais inválidos após reset.");
+                $display("FAIL: estado inválido após reset.");
+                $display("busy=%b done=%b error=%b", busy, done, error);
+
                 fail_count = fail_count + 1;
 
             end
 
         end
+
     endtask
 
     // ========================================================================
-    // TESTE 002
-    // VETOR ZERO
-    // ========================================================================
-    // Entrada: f[i] = 0   
-    // Resultado esperado:
-    //   NTT(f)[i] = 0
+    // TESTE 002 - COMANDO NTT
     // ========================================================================
 
-    task automatic test_zero;
+    task automatic test_ntt;
 
         integer i;
 
@@ -717,507 +410,291 @@ module ntt_tb;
             test_count = test_count + 1;
 
             $display("");
-            $display("=================================================");
-            $display("TESTE %0d - VETOR ZERO", test_count);
-            $display("=================================================");
-
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = 12'd0;
-
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 003
-    // IMPULSO NA POSIÇÃO 0
-    // ========================================================================
-
-    task automatic test_impulse_zero;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - IMPULSO NA POSIÇÃO 0", test_count);
-            $display("=================================================");
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = 12'd0;
-                
-            input_poly[0] = 12'd1;
-
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 004
-    // IMPULSO NA POSIÇÃO 1
-    // ========================================================================
-
-    task automatic test_impulse_one;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - IMPULSO NA POSIÇÃO 1", test_count);
-            $display("=================================================");
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = 12'd0;
-
-            input_poly[1] = 12'd1;
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 005
-    // TODOS OS COEFICIENTES = 1
-    // ========================================================================
-
-    task automatic test_all_ones;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - TODOS OS COEFICIENTES = 1", test_count);
-            $display("=================================================");
-
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = 12'd1;
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 006
-    // TODOS OS COEFICIENTES = Q-1
-    // ========================================================================
-
-    task automatic test_all_q_minus_1;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - TODOS OS COEFICIENTES = Q-1", test_count);
-            $display("=================================================");
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = Q - 1;
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-
-    // ========================================================================
-    // TESTE 007
-    // VETOR CRESCENTE
-    // ========================================================================
-
-    task automatic test_incremental;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - VETOR CRESCENTE", test_count);
-            $display("=================================================");
-
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = i % Q;
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 008
-    // VETOR DECRESCENTE
-    // ========================================================================
-
-    task automatic test_decremental;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - VETOR DECRESCENTE", test_count);
-            $display("=================================================");
-
-
-            for (i = 0; i < N; i = i + 1)
-                input_poly[i] = (Q - 1) - (i % Q);
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-
-    // ========================================================================
-    // TESTE 009
-    // VALORES EXTREMOS
-    // ========================================================================
-
-    task automatic test_extremes;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - VALORES EXTREMOS", test_count);
-            $display("=================================================");
-
-
+            $display("=============================================");
+            $display("TESTE %0d - NTT", test_count);
+            $display("=============================================");
+
+            // Cria vetor de entrada
             for (i = 0; i < N; i = i + 1) begin
 
-                if ((i % 2) == 0)
-                    input_poly[i] = 12'd0;
-                else
-                    input_poly[i] = Q - 1;
+                input_poly_a[i] = i % Q;
 
             end
 
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
+            // Solicita NTT
+            send_command(OP_NTT_FORWARD);
 
+            // Aguarda término
+            wait_done();
 
-    // ========================================================================
-    // TESTE 010
-    // VETOR PSEUDOALEATÓRIO
+            if (error) begin
 
-    // Utiliza uma seed fixa para tornar o teste reprodutível.
-    // Isso é importante para regressão.
-    // ========================================================================
-
-    task automatic test_random;
-
-        integer i;
-        integer seed;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - VETOR PSEUDOALEATÓRIO", test_count);
-            $display("=================================================");
-
-            // Seed fixa.
-            seed = 32'h12345678;
-
-            for (i = 0; i < N; i = i + 1) begin
-
-                input_poly[i] = $urandom(seed) % Q;
-
-            end
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 011
-    // VÁRIOS PADRÕES
-    // Cada posição recebe um padrão determinístico.
-    // ========================================================================
-
-    task automatic test_pattern;
-
-        integer i;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - PADRÃO DETERMINÍSTICO", test_count);
-            $display("=================================================");
-
-            for (i = 0; i < N; i = i + 1) begin
-
-                input_poly[i] =
-                    ((i * 37) + 123) % Q;
-
-            end
-
-            calculate_reference();
-            send_input();
-            receive_output();
-            compare_result();
-
-        end
-    endtask
-
-    // ========================================================================
-    // TESTE 012
-    // ZETA ROM
-    //
-    // Verifica se a tabela utilizada pelo modelo possui os valores esperados
-    // do FIPS 203.    
-    // ========================================================================
-
-    task automatic test_zeta_rom;
-
-        integer errors;
-
-        begin
-
-            test_count = test_count + 1;
-
-            $display("");
-            $display("=================================================");
-            $display("TESTE %0d - VALIDAÇÃO DA TABELA DE ZETAS", test_count);
-            $display("=================================================");
-
-            errors = 0;
-
-            if (get_zeta(1) != 12'd1729) begin
-                $display("ERRO: zeta[1]");
-                errors = errors + 1;
-            end
-
-            if (get_zeta(2) != 12'd2580) begin
-                $display("ERRO: zeta[2]");
-                errors = errors + 1;
-            end
-
-            if (get_zeta(3) != 12'd3289) begin
-                $display("ERRO: zeta[3]");
-                errors = errors + 1;
-            end
-
-            if (get_zeta(64) != 12'd17) begin
-                $display("ERRO: zeta[64]");
-                errors = errors + 1;
-            end
-
-            if (get_zeta(127) != 12'd2154) begin
-                $display("ERRO: zeta[127]");
-                errors = errors + 1;
-            end
-
-            if (errors == 0) begin
-
-                $display("PASS: tabela de zetas validada.");
-                pass_count = pass_count + 1;
+                $display("FAIL: DUT indicou erro.");
+                fail_count = fail_count + 1;
 
             end
             else begin
 
-                $display("FAIL: %0d erros na tabela.", errors);
+                $display("Operação NTT finalizada.");
+                pass_count = pass_count + 1;
+
+            end
+
+        end
+
+    endtask
+
+    // ========================================================================
+    // TESTE 003 - INTT
+    // ========================================================================
+
+    task automatic test_intt;
+
+        integer i;
+
+        begin
+
+            test_count = test_count + 1;
+
+            $display("");
+            $display("=============================================");
+            $display("TESTE %0d - INTT", test_count);
+            $display("=============================================");
+
+            for (i = 0; i < N; i = i + 1) begin
+
+                input_poly_a[i] = i % Q;
+
+            end
+
+            send_command(OP_NTT_INVERSE);
+
+            wait_done();
+
+            if (error) begin
+
+                $display("FAIL: DUT indicou erro.");
                 fail_count = fail_count + 1;
 
             end
+            else begin
+
+                $display("Operação INTT finalizada.");
+                pass_count = pass_count + 1;
+
+            end
+
         end
+
     endtask
 
+    // ========================================================================
+    // TESTE 004 - BASEMUL
+    // ========================================================================
+
+    task automatic test_basemul;
+
+        integer i;
+
+        begin
+
+            test_count = test_count + 1;
+
+            $display("");
+            $display("=============================================");
+            $display("TESTE %0d - BASEMUL", test_count);
+            $display("=============================================");
+
+            for (i = 0; i < N; i = i + 1) begin
+
+                input_poly_a[i] = i % Q;
+                input_poly_b[i] = (i + 1) % Q;
+            end
+
+            send_command(OP_NTT_BASEMUL);
+
+            wait_done();
+
+            if (error) begin
+
+                $display("FAIL: DUT indicou erro.");
+                fail_count = fail_count + 1;
+
+            end
+            else begin
+
+                $display("Operação BASEMUL finalizada.");
+                pass_count = pass_count + 1;
+
+            end
+
+        end
+
+    endtask
 
     // ========================================================================
-    // MONITOR DE BUSY
+    // TESTE 005 - ACCUMULATE
     // ========================================================================
-    //
-    // Este bloco apenas registra mudanças do sinal busy.
-    // Útil durante a análise das formas de onda.
+
+    task automatic test_accumulate;
+
+        integer i;
+
+        begin
+
+            test_count = test_count + 1;
+
+            $display("");
+            $display("=============================================");
+            $display("TESTE %0d - ACCUMULATE", test_count);
+            $display("=============================================");
+
+            for (i = 0; i < N; i = i + 1) begin
+
+                input_poly_a[i] = i % Q;
+                input_poly_b[i] = (Q - 1 - i) % Q;
+
+            end
+
+            send_command(OP_NTT_ACCUMULATE);
+            wait_done();
+
+            if (error) begin
+
+                $display("FAIL: DUT indicou erro.");
+                fail_count = fail_count + 1;
+
+            end
+            else begin
+
+                $display("Operação ACCUMULATE finalizada.");
+                pass_count = pass_count + 1;
+
+            end
+
+        end
+
+    endtask
+
+    // ========================================================================
+    // TESTE 006 - ZEROIZE
+    // ========================================================================
+
+    task automatic test_zeroize;
+
+        begin
+
+            test_count = test_count + 1;
+
+            $display("");
+            $display("=============================================");
+            $display("TESTE %0d - ZEROIZE", test_count);
+            $display("=============================================");
+
+            @(posedge clk);
+
+            zeroize <= 1'b1;
+
+            @(posedge clk);
+
+            zeroize <= 1'b0;
+
+            $display("Comando ZEROIZE aplicado.");
+            pass_count = pass_count + 1;
+
+        end
+
+    endtask
+
+    // ========================================================================
+    // MONITOR DOS SINAIS PRINCIPAIS
     // ========================================================================
 
     always @(posedge clk) begin
 
-        if (busy) begin
+        if (start) begin
 
-            // O DUT está executando uma operação.
-            // Não é necessário imprimir todos os ciclos para evitar excesso
-            // de informação no transcript.
-            // O sinal pode ser observado diretamente no waveform.
+            $display("[CONTROL] START=1 CMD=%b READY=%b BUSY=%b", cmd_op, ready, busy);
+
         end
+
+        if (wr_en) begin
+
+            $display("[OUTPUT] addr=%0d data=%0d", wr_addr, wr_data);
+
+        end
+
     end
 
     // ========================================================================
-    // MONITOR DE VALID_OUT
-    // Mostra cada coeficiente produzido pelo DUT.
-    // ========================================================================
-
-    always @(posedge clk) begin
-
-        if (valid_out) begin
-
-            $display(
-                "[NTT OUTPUT] index=%0d data=%0d",
-                output_count,
-                data_out
-            );
-        end
-    end
-
-    // ========================================================================
-    // PROGRAMA PRINCIPAL DE TESTES
+    // PROGRAMA PRINCIPAL
     // ========================================================================
 
     initial begin
 
-        // ---------------------------------------------------------------
-        // Inicialização.
-        // ---------------------------------------------------------------
+        // ------------------------------------------------------------
+        // Inicialização
+        // ------------------------------------------------------------
 
-        rst          = 1'b0;
-        start        = 1'b0;
-        valid_in     = 1'b0;
-        data_in      = '0;
+        clk = 1'b0;
+
+        rst_n = 1'b0;
+
+        start = 1'b0;
+
+        cmd_op = OP_NTT_IDLE;
+
+        zeroize = 1'b0;
+
+        rd_data_a = '0;
+        rd_data_b = '0;
 
         output_count = 0;
 
-        test_count   = 0;
-        pass_count   = 0;
-        fail_count   = 0;
+        test_count = 0;
+        pass_count = 0;
+        fail_count = 0;
 
-        // ---------------------------------------------------------------
-        // Mensagem inicial.
-        // ---------------------------------------------------------------
+        clear_memories();
+
+        // ------------------------------------------------------------
+        // Cabeçalho
+        // ------------------------------------------------------------
 
         $display("");
-        $display("=================================================");
-        $display("          ML-KEM NTT RTL TESTBENCH");
-        $display("=================================================");
+        $display("=============================================");
+        $display("       ML-KEM NTT RTL TESTBENCH");
+        $display("=============================================");
         $display("N  = %0d", N);
         $display("Q  = %0d", Q);
         $display("DW = %0d bits", DW);
-        $display("=================================================");
+        $display("=============================================");
 
-        // ---------------------------------------------------------------
-        // Reset inicial.
-        // ---------------------------------------------------------------
 
+        // Reset
         reset_dut();
 
-        // ---------------------------------------------------------------
-        // Testes.
-        // ---------------------------------------------------------------
-
-        test_zeta_rom();
+        // Testes
         test_reset();
-        test_zero();
-        test_impulse_zero();
-        test_impulse_one();
-        test_all_ones();
-        test_all_q_minus_1();
-        test_incremental();
-        test_decremental();
-        test_extremes();
-        test_pattern();
-        test_random();
+        test_ntt();
+        test_intt();
+        test_basemul();
+        test_accumulate();
+        test_zeroize();
 
-        // ---------------------------------------------------------------
-        // Resumo final.
-        // ---------------------------------------------------------------
-
+        // Resumo
         $display("");
         $display("");
-        $display("=================================================");
-        $display("              RESUMO DA SIMULAÇÃO");
-        $display("=================================================");
-        $display("Total de testes : %0d", test_count);
-        $display("Passou          : %0d", pass_count);
-        $display("Falhou          : %0d", fail_count);
-        $display("=================================================");
-
-        if (fail_count == 0) begin
-
-            $display("");
-            $display("*************************************************");
-            $display("*                                               *");
-            $display("*       TODA A REGRESSÃO FOI APROVADA           *");
-            $display("*                                               *");
-            $display("*************************************************");
-            $display("");
-
-        end
-        else begin
-
-            $display("");
-            $display("*************************************************");
-            $display("*                                               *");
-            $display("*       EXISTEM TESTES COM FALHA                 *");
-            $display("*                                               *");
-            $display("*************************************************");
-            $display("");
-
-        end
-
-        // ---------------------------------------------------------------
-        // Finaliza simulação.
-        // ---------------------------------------------------------------
+        $display("=============================================");
+        $display("          RESUMO DA SIMULAÇÃO");
+        $display("=============================================");
+        $display("Total  : %0d", test_count);
+        $display("Passou : %0d", pass_count);
+        $display("Falhou : %0d", fail_count);
+        $display("=============================================");
 
         $finish;
+
     end
+
 endmodule
