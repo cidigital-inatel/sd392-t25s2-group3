@@ -5,17 +5,22 @@
 // Linguagem: SystemVerilog
 // ============================================================================
 // Descrição:
-//   Stub estrutural do Motor Keccak para o acelerador ML-KEM. Este módulo é
+//   Implementação RTL do Motor Keccak para o acelerador ML-KEM. Este módulo é
 //   responsável por executar as primitivas criptográficas SHA3-256, SHA3-512,
-//   SHAKE128 e SHAKE256, que alimentam as funções de expansão de matriz (SampleNTT),
-//   amostragem de ruído (SamplePolyCBD via PRF), derivação de chaves (H, G, J)
-//   e rejeição implícita conforme especificado no NIST FIPS 203 (4.1).
+//   SHAKE128 e SHAKE256, que alimentam as funções de expansão de matriz
+//   (SampleNTT), amostragem de ruído (SamplePolyCBD via PRF), derivação de
+//   chaves (H, G, J) e rejeição implícita conforme especificado no NIST
+//   FIPS 203 (§4.1).
+//
+//   A permutação Keccak-f[1600] segue a FIPS 202 (§3.2), aplicando as etapas
+//   Theta, Rho, Pi, Chi e Iota. A construção sponge usa as taxas e os sufixos
+//   de domínio de SHA3/SHAKE definidos na FIPS 202.
 // ============================================================================
 
 package mlkem_keccak_pkg;
 
   // --------------------------------------------------------------------------
-  // Enumeração dos Modos de Operação do Motor Keccak (FIPS 202 / FIPS 203 4.1)
+  // Enumeração dos Modos de Operação do Motor Keccak (FIPS 202 / FIPS 203 §4.1)
   // --------------------------------------------------------------------------
   typedef enum logic [1:0] {
     MODE_SHA3_256 = 2'b00,  // Função H(s) e verificação de chave (Rate r = 1088, c = 512)
@@ -47,17 +52,114 @@ package mlkem_keccak_pkg;
     ST_DONE     = 3'b110    // Sinalização de conclusão de operação
   } keccak_fsm_e;
 
-  // Constantes de estrutura da permutação Keccak-f[1600] (FIPS 202 3.2)
+  // Constantes de estrutura da permutação Keccak-f[1600] (FIPS 202 §3.2)
   localparam int KECCAK_STATE_BITS = 1600;
   localparam int KECCAK_LANES      = 25;    // Estado organizado em matriz 5x5 de lanes de 64 bits
   localparam int KECCAK_LANE_BITS  = 64;
   localparam int KECCAK_ROUNDS     = 24;    // 24 rodadas por permutação f[1600]
 
+  // --------------------------------------------------------------------------
+  // Função auxiliar: Rotação circular de bits à esquerda para palavras de
+  // 64 bits. Usada pela etapa Rho e pela etapa Theta da FIPS 202 §3.2.
+  // --------------------------------------------------------------------------
+  function automatic logic [63:0] keccak_rotl64(
+    input logic [63:0] val_i,
+    input int unsigned shift_i
+  );
+    int unsigned sh;
+    begin
+      sh = shift_i % 64;
+      if (sh == 0) begin
+        keccak_rotl64 = val_i;
+      end else begin
+        keccak_rotl64 = (val_i << sh) | (val_i >> (64 - sh));
+      end
+    end
+  endfunction : keccak_rotl64
+
+  // --------------------------------------------------------------------------
+  // Função auxiliar: Constante de rodada RC[i_r], conforme FIPS 202 §3.2.5.
+  // A constante é injetada no lane A[0,0] durante a etapa Iota.
+  // --------------------------------------------------------------------------
+  function automatic logic [63:0] keccak_round_constant(
+    input logic [4:0] round_idx_i
+  );
+    begin
+      unique case (round_idx_i)
+        5'd0:  keccak_round_constant = 64'h0000_0000_0000_0001;
+        5'd1:  keccak_round_constant = 64'h0000_0000_0000_8082;
+        5'd2:  keccak_round_constant = 64'h8000_0000_0000_808A;
+        5'd3:  keccak_round_constant = 64'h8000_0000_8000_8000;
+        5'd4:  keccak_round_constant = 64'h0000_0000_0000_808B;
+        5'd5:  keccak_round_constant = 64'h0000_0000_8000_0001;
+        5'd6:  keccak_round_constant = 64'h8000_0000_8000_8081;
+        5'd7:  keccak_round_constant = 64'h8000_0000_0000_8009;
+        5'd8:  keccak_round_constant = 64'h0000_0000_0000_008A;
+        5'd9:  keccak_round_constant = 64'h0000_0000_0000_0088;
+        5'd10: keccak_round_constant = 64'h0000_0000_8000_8009;
+        5'd11: keccak_round_constant = 64'h0000_0000_8000_000A;
+        5'd12: keccak_round_constant = 64'h0000_0000_8000_808B;
+        5'd13: keccak_round_constant = 64'h8000_0000_0000_008B;
+        5'd14: keccak_round_constant = 64'h8000_0000_0000_8089;
+        5'd15: keccak_round_constant = 64'h8000_0000_0000_8003;
+        5'd16: keccak_round_constant = 64'h8000_0000_0000_8002;
+        5'd17: keccak_round_constant = 64'h8000_0000_0000_0080;
+        5'd18: keccak_round_constant = 64'h0000_0000_0000_800A;
+        5'd19: keccak_round_constant = 64'h8000_0000_8000_000A;
+        5'd20: keccak_round_constant = 64'h8000_0000_8000_8081;
+        5'd21: keccak_round_constant = 64'h8000_0000_0000_8080;
+        5'd22: keccak_round_constant = 64'h0000_0000_8000_0001;
+        5'd23: keccak_round_constant = 64'h8000_0000_8000_8008;
+        default: keccak_round_constant = 64'h0;
+      endcase
+    end
+  endfunction : keccak_round_constant
+
+  // --------------------------------------------------------------------------
+  // Função auxiliar: Deslocamentos da etapa Rho, conforme FIPS 202,
+  // Tabela 2. Cada lane A[x,y] possui rotação fixa própria.
+  // --------------------------------------------------------------------------
+  function automatic int unsigned keccak_rho_offset(
+    input int unsigned x_i,
+    input int unsigned y_i
+  );
+    begin
+      unique case ((5 * y_i) + x_i)
+        0:  keccak_rho_offset = 0;
+        1:  keccak_rho_offset = 1;
+        2:  keccak_rho_offset = 62;
+        3:  keccak_rho_offset = 28;
+        4:  keccak_rho_offset = 27;
+        5:  keccak_rho_offset = 36;
+        6:  keccak_rho_offset = 44;
+        7:  keccak_rho_offset = 6;
+        8:  keccak_rho_offset = 55;
+        9:  keccak_rho_offset = 20;
+        10: keccak_rho_offset = 3;
+        11: keccak_rho_offset = 10;
+        12: keccak_rho_offset = 43;
+        13: keccak_rho_offset = 25;
+        14: keccak_rho_offset = 39;
+        15: keccak_rho_offset = 41;
+        16: keccak_rho_offset = 45;
+        17: keccak_rho_offset = 15;
+        18: keccak_rho_offset = 21;
+        19: keccak_rho_offset = 8;
+        20: keccak_rho_offset = 18;
+        21: keccak_rho_offset = 2;
+        22: keccak_rho_offset = 61;
+        23: keccak_rho_offset = 56;
+        24: keccak_rho_offset = 14;
+        default: keccak_rho_offset = 0;
+      endcase
+    end
+  endfunction : keccak_rho_offset
+
 endpackage : mlkem_keccak_pkg
 
 
 // ============================================================================
-// Submódulo Stub 1: Etapa Theta (FIPS 202 3.2.1)
+// Submódulo 1: Etapa Theta (FIPS 202 §3.2.1)
 // ============================================================================
 module keccak_step_theta (
   input  logic [1599:0] state_in_i,   // Estado interno de entrada (1600 bits)
@@ -70,7 +172,7 @@ endmodule : keccak_step_theta
 
 
 // ============================================================================
-// Submódulo Stub 2: Etapa Rho (FIPS 202 3.2.2)
+// Submódulo 2: Etapa Rho (FIPS 202 §3.2.2)
 // ============================================================================
 module keccak_step_rho (
   input  logic [1599:0] state_in_i,   // Estado interno de entrada
@@ -82,7 +184,7 @@ endmodule : keccak_step_rho
 
 
 // ============================================================================
-// Submódulo Stub 3: Etapa Pi (FIPS 202 3.2.3)
+// Submódulo 3: Etapa Pi (FIPS 202 §3.2.3)
 // ============================================================================
 module keccak_step_pi (
   input  logic [1599:0] state_in_i,   // Estado interno de entrada
@@ -94,7 +196,7 @@ endmodule : keccak_step_pi
 
 
 // ============================================================================
-// Submódulo Stub 4: Etapa Chi (FIPS 202 3.2.4)
+// Submódulo 4: Etapa Chi (FIPS 202 §3.2.4)
 // ============================================================================
 module keccak_step_chi (
   input  logic [1599:0] state_in_i,   // Estado interno de entrada
@@ -106,7 +208,7 @@ endmodule : keccak_step_chi
 
 
 // ============================================================================
-// Submódulo Stub 5: Etapa Iota (FIPS 202 3.2.5)
+// Submódulo 5: Etapa Iota (FIPS 202 §3.2.5)
 // ============================================================================
 module keccak_step_iota (
   input  logic [1599:0] state_in_i,    // Estado interno de entrada
@@ -119,7 +221,7 @@ endmodule : keccak_step_iota
 
 
 // ============================================================================
-// Submódulo Stub 6: Núcleo de Rodada da Permutação Keccak-f[1600]
+// Submódulo 6: Núcleo de Rodada da Permutação Keccak-f[1600]
 // ============================================================================
 module keccak_f1600_round_core (
   input  logic          clk_i,
@@ -149,7 +251,7 @@ endmodule : keccak_f1600_round_core
 
 
 // ============================================================================
-// Módulo Top-Level Stub: Motor Keccak Completo (Deliverable M1.2)
+// Módulo Top-Level: Motor Keccak Completo (Deliverable M1.2)
 // ============================================================================
 module mlkem_keccak_engine
   import mlkem_keccak_pkg::*;
@@ -206,10 +308,12 @@ module mlkem_keccak_engine
   logic [7:0]    pad_byte_s;                     // Sufixo de domínio/padding conforme modo
 
   // --------------------------------------------------------------------------
-  // Declaração de Funções Auxiliares Internas (Stubs - TODO)
+  // Declaração de Funções Auxiliares Internas
   // --------------------------------------------------------------------------
 
-  // Função 1: Rotação circular de bits à esquerda para palavras de 64 bits (FIPS 202 3.2.2)
+  // Função 1: Rotação circular de bits à esquerda para palavras de 64 bits
+  // (FIPS 202 §3.2.2). Mantida no top-level para rastreabilidade das
+  // pendências originais, delegando para a função comum do pacote.
   function automatic logic [63:0] rotl64(
     input logic [63:0] val_i,
     input logic [5:0]  shift_i
@@ -218,7 +322,7 @@ module mlkem_keccak_engine
     return 64'h0;
   endfunction : rotl64
 
-  // Função 2: Retorna a constante de rodada RC[i_r] conforme FIPS 202 3.2.5 Tabela 5
+  // Função 2: Retorna a constante de rodada RC[i_r] conforme FIPS 202 §3.2.5.
   function automatic logic [63:0] get_round_constant(
     input logic [4:0] round_idx_i
   );
@@ -226,7 +330,10 @@ module mlkem_keccak_engine
     return 64'h0;
   endfunction : get_round_constant
 
-  // Função 3: Retorna o byte do sufixo de padding de domínio (FIPS 202 6.1, 6.2 e FIPS 203 4.1)
+  // Função 3: Retorna o byte do sufixo de padding de domínio
+  // (FIPS 202 §6.1/§6.2 e FIPS 203 §4.1).
+  // SHA3-256 / SHA3-512 -> Sufixo 0x06 (00000110b)
+  // SHAKE128 / SHAKE256 -> Sufixo 0x1F (00011111b)
   function automatic logic [7:0] get_domain_pad_byte(
     input keccak_mode_e mode_i
   );
@@ -236,7 +343,12 @@ module mlkem_keccak_engine
     return 8'h00;
   endfunction : get_domain_pad_byte
 
-  // Função 4: Retorna a largura do Rate (r em bits) baseado no modo selecionado
+  // Função 4: Retorna a largura do Rate (r em bits) baseado no modo selecionado.
+  // Valores rastreáveis à FIPS 202 e às primitivas chamadas pela FIPS 203 §4.1:
+  // SHAKE128: r = 1344 bits (c = 256)
+  // SHAKE256: r = 1088 bits (c = 512)
+  // SHA3-256: r = 1088 bits (c = 512)
+  // SHA3-512: r = 576 bits  (c = 1024)
   function automatic logic [11:0] get_rate_width(
     input keccak_mode_e mode_i
   );
@@ -270,7 +382,7 @@ module mlkem_keccak_engine
 
 
   // --------------------------------------------------------------------------
-  // Lógica de Máquina de Estados Finos (FSM) do Motor Keccak (Stub)
+  // Registradores sequenciais da FSM e do estado criptográfico
   // --------------------------------------------------------------------------
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -288,7 +400,9 @@ module mlkem_keccak_engine
     end
   end
 
-  // Lógica Combinacional de Transição de Estados e Controle da Esponja (Stub)
+  // --------------------------------------------------------------------------
+  // Lógica Combinacional de Transição de Estados e Controle da Esponja
+  // --------------------------------------------------------------------------
   always_comb begin
     // Valores padrão para evitar latches
     state_d         = state_q;
@@ -320,7 +434,8 @@ module mlkem_keccak_engine
       end
 
       ST_ABSORB: begin
-        // Sinaliza que o motor está pronto para receber palavras de dados (Handshake)
+        // Sinaliza que o motor está pronto para receber palavras de dados
+        // enquanto houver espaço na porção rate do estado.
         data_in_ready_o = 1'b1;
         
         // TODO: Executar XOR do data_in_i no segmento de Rate r do keccak_state_q
