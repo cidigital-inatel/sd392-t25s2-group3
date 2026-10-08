@@ -5,7 +5,7 @@
 // Este canal transporta seeds, public keys e ciphertexts enviados ao acelerador.
 interface axis_input_bfm #(
     parameter int unsigned TDATA_WIDTH = 32,
-    parameter int unsigned TUSER_WIDTH = 0,
+    parameter int unsigned TUSER_WIDTH = 1,
     parameter int unsigned CLK_FREQ_MHZ = 100
 );
     localparam time CLK_PERIOD = (1_000.0 / CLK_FREQ_MHZ) * 1ns;
@@ -35,7 +35,6 @@ interface axis_input_bfm #(
         TUSER  = '0;
         TKEEP  = '0;
         TSTRB  = '0;
-        TREADY = 1'b0;
         ARESETn = 1'b0;
         repeat (cycles) @(posedge ACLK);
         @(negedge ACLK);
@@ -47,25 +46,31 @@ interface axis_input_bfm #(
     endfunction
 
     // Envia um beat de dados para o DUT.
-    // A tarefa assume que o DUT já está pronto para aceitar dados.
     task automatic send_beat(input logic [TDATA_WIDTH-1:0] value,
                              input logic last = 1'b0,
-                             input logic [TUSER_WIDTH-1:0] user = '0);
+                             input logic [TUSER_WIDTH-1:0] user = '0,
+                             input logic [TDATA_WIDTH/8-1:0] keep = '1,
+                             input logic [TDATA_WIDTH/8-1:0] strb = '1);
+        @(negedge ACLK);
         TDATA  = value;
         TLAST  = last;
         TUSER  = user;
+        TKEEP  = keep;
+        TSTRB  = strb;
         TVALID = 1'b1;
 
-        while (!(TVALID && TREADY)) @(posedge ACLK);
+        do @(posedge ACLK); while (TREADY !== 1'b1);
         @(negedge ACLK);
         TVALID = 1'b0;
         TLAST  = 1'b0;
         TUSER  = '0;
+        TKEEP  = '0;
+        TSTRB  = '0;
     endtask
 
     // Espera o DUT indicar que está pronto para receber o próximo beat.
     task automatic wait_for_ready();
-        while (!TREADY) @(posedge ACLK);
+        while (TREADY !== 1'b1) @(posedge ACLK);
     endtask
 
     // Forma simples de transmitir um pacote em múltiplos beats.

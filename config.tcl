@@ -20,7 +20,7 @@ set SCRIPT_TARGET   "all"
 set GUI_MODE        "no-gui"
 
 # UVM controls
-set UVM_TEST        "axi_lite_smoke_test"
+set UVM_TEST        "axis_input_smoke_test"
 set UVM_VERBOSITY   "UVM_MEDIUM"
 set UVM_ARGS        [list ]
 set RND_SEED        1
@@ -28,7 +28,8 @@ set RND_SEED        1
 # ================== Project definitions =====================
 # Main directories
 set ROOT_DIR        [pwd]
-set RUN_DIR         "$ROOT_DIR/work/axi_lite_smoke"
+#set RUN_DIR         "$ROOT_DIR/work/axi_lite_smoke"
+set RUN_DIR         "$ROOT_DIR/work/axi_input_smoke"
 
 # Design (DUT) and Testbench (simulation) directories
 set RTL_PATHS       "$ROOT_DIR/rtl"
@@ -40,9 +41,9 @@ set XVLOG_RTL_FILES [list ]
 
 # Testbench (simulation) file list (VHDL and Verilog/SV separated)
 set XVHDL_TB_FILES  [list ]
-set XVLOG_TB_FILES  [list "$TB_PATHS/axi_lite_bfm.sv" \
-                          "$TB_PATHS/axi_lite_testbench_pkg.sv" \
-                          "$TB_PATHS/testbench.sv" ]
+set XVLOG_TB_FILES  [list "$TB_PATHS/axis_input_bfm.sv" \
+                          "$TB_PATHS/axis_input_testbench_pkg.sv" \
+                          "$TB_PATHS/axis_input_smoke_tb.sv" ]
 
 # Name of the top level simulation module
-set TOP_NAME        "axi_lite_smoke_tb"
+set TOP_NAME        "axis_input_smoke_tb"
