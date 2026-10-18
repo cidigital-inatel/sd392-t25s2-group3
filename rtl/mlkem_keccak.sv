@@ -330,51 +330,78 @@ module mlkem_keccak_engine
   // --------------------------------------------------------------------------
   // Sinais Globais de Clock e Reset (Ativo em Nível Baixo)
   // --------------------------------------------------------------------------
-  input  logic                  clk_i,          // Clock principal do acelerador
-  input  logic                  rst_ni,         // Reset assíncrono ativo baixo
+  input  logic                  clk_i,
+  input  logic                  rst_ni,
 
   // --------------------------------------------------------------------------
   // Interface de Controle Criptográfico e Configuração de Modo
   // --------------------------------------------------------------------------
-  input  logic                  start_i,        // Pulso para iniciar nova operação
-  input  keccak_mode_e          mode_i,         // Seleção do algoritmo: SHA3_256, SHA3_512, SHAKE128, SHAKE256
-  input  keccak_cmd_e           cmd_i,          // Comando: INIT, ABSORB, FINISH, SQUEEZE
-  input  logic                  zeroize_i,      // Sinal de força maior para limpeza de chaves/estado
+  input  logic                  start_i,
+  input  keccak_mode_e          mode_i,
+  input  keccak_cmd_e           cmd_i,
+  input  logic                  zeroize_i,
 
   // --------------------------------------------------------------------------
   // Stream de Entrada de Dados (Sponge Absorb Interface)
   // --------------------------------------------------------------------------
-  input  logic [DATA_WIDTH-1:0] data_in_i,      // Palavra de dados de entrada
-  input  logic                  data_in_valid_i,// Handshake: Dados de entrada válidos
-  output logic                  data_in_ready_o,// Handshake: Motor pronto para receber dados
-  input  logic                  data_in_last_i, // Indicador de último bloco/palavra da mensagem
-  input  logic [2:0]            data_in_bytes_i,// Quantidade de bytes válidos na última palavra (1 a 8 bytes)
+  input  logic [DATA_WIDTH-1:0] data_in_i,
+  input  logic                  data_in_valid_i,
+  output logic                  data_in_ready_o,
+  input  logic                  data_in_last_i,
+  input  logic [2:0]            data_in_bytes_i,
 
   // --------------------------------------------------------------------------
   // Stream de Saída de Dados (Sponge Squeeze / Digest Interface)
   // --------------------------------------------------------------------------
-  output logic [DATA_WIDTH-1:0] data_out_o,     // Palavra de dados extraída (Hash / XOF Output)
-  output logic                  data_out_valid_o,// Handshake: Dados de saída válidos
-  input  logic                  data_out_ready_i,// Handshake: Consumidor pronto para receber dados
-  output logic                  data_out_last_o,// Indicador de última palavra do bloco/squeeze
+  output logic [DATA_WIDTH-1:0] data_out_o,
+  output logic                  data_out_valid_o,
+  input  logic                  data_out_ready_i,
+  output logic                  data_out_last_o,
 
   // --------------------------------------------------------------------------
   // Sinais de Status e Telemetria para o Sistema / CSRs
   // --------------------------------------------------------------------------
-  output logic                  ready_o,        // Motor Keccak pronto para novo comando
-  output logic                  busy_o,         // Motor Keccak processando permutação
-  output logic                  done_o,         // Pulso de operação/squeeze concluído
-  output logic                  error_o         // Indicador de erro de protocolo/fronteira
+  output logic                  ready_o,
+  output logic                  busy_o,
+  output logic                  done_o,
+  output logic                  error_o
 );
+
+  // --------------------------------------------------------------------------
+  // Constantes internas do barramento e limites de saída
+  // --------------------------------------------------------------------------
+  localparam int DATA_BYTES      = DATA_WIDTH / 8;
+  localparam int MAX_RATE_BYTES  = 168; // SHAKE128: rate máximo de 1344 bits
+  localparam int SHA3_256_BYTES  = 32;  // Digest fixo de SHA3-256
+  localparam int SHA3_512_BYTES  = 64;  // Digest fixo de SHA3-512
+  localparam int SHAKE_BLOCK_OUT = MAX_RATE_BYTES; // Bloco liberado por comando SQUEEZE
+
+  // --------------------------------------------------------------------------
+  // Retorno após a permutação: permite reutilizar ST_PERMUTE para absorção,
+  // padding final e geração de blocos adicionais em SHAKE.
+  // --------------------------------------------------------------------------
+  typedef enum logic [1:0] {
+    RET_DONE    = 2'b00,
+    RET_ABSORB  = 2'b01,
+    RET_SQUEEZE = 2'b10
+  } perm_return_e;
 
   // --------------------------------------------------------------------------
   // Registradores de Estado Interno e Controle de Rodadas
   // --------------------------------------------------------------------------
-  logic [1599:0] keccak_state_q, keccak_state_d; // Matriz 5x5 de 64-bit lanes (1600 bits)
-  logic [4:0]    round_cnt_q, round_cnt_d;       // Contador de rodadas (0 a 23)
-  keccak_fsm_e   state_q, state_d;               // Estado da FSM principal
-  logic [1087:0] rate_mask_s;                    // Máscara correspondente à Taxa (Rate r)
-  logic [7:0]    pad_byte_s;                     // Sufixo de domínio/padding conforme modo
+  logic [1599:0] keccak_state_q, keccak_state_d;
+  logic [4:0]    round_cnt_q, round_cnt_d;
+  keccak_fsm_e   state_q, state_d;
+  logic [7:0]    absorb_pos_q, absorb_pos_d;       // Offset em bytes dentro da taxa (rate)
+  logic [7:0]    squeeze_pos_q, squeeze_pos_d;     // Próximo byte a extrair da taxa
+  logic [7:0]    squeeze_limit_q, squeeze_limit_d; // Limite de saída do comando corrente
+  keccak_mode_e  mode_q, mode_d;                   // Modo travado para manter contexto
+  perm_return_e  perm_return_q, perm_return_d;     // Próximo estado após 24 rodadas
+  logic          pending_valid_q, pending_valid_d; // Fila simples para comando recebido durante permutação
+  keccak_mode_e  pending_mode_q, pending_mode_d;
+  keccak_cmd_e   pending_cmd_q, pending_cmd_d;
+
+  logic [1599:0] perm_state_out_s;
 
   // --------------------------------------------------------------------------
   // Declaração de Funções Auxiliares Internas
@@ -387,16 +414,18 @@ module mlkem_keccak_engine
     input logic [63:0] val_i,
     input logic [5:0]  shift_i
   );
-    // TODO: Implementar rotação de bits ((val_i << shift_i) | (val_i >> (64 - shift_i)))
-    return 64'h0;
+    begin
+      rotl64 = keccak_rotl64(val_i, shift_i);
+    end
   endfunction : rotl64
 
   // Função 2: Retorna a constante de rodada RC[i_r] conforme FIPS 202 §3.2.5.
   function automatic logic [63:0] get_round_constant(
     input logic [4:0] round_idx_i
   );
-    // TODO: Implementar tabela de constantes RC para as 24 rodadas
-    return 64'h0;
+    begin
+      get_round_constant = keccak_round_constant(round_idx_i);
+    end
   endfunction : get_round_constant
 
   // Função 3: Retorna o byte do sufixo de padding de domínio
@@ -406,10 +435,15 @@ module mlkem_keccak_engine
   function automatic logic [7:0] get_domain_pad_byte(
     input keccak_mode_e mode_i
   );
-    // SHA3-256 / SHA3-512 -> Sufixo 0x06 (00000110b)
-    // SHAKE128 / SHAKE256 -> Sufixo 0x1F (00011111b)
-    // TODO: Retornar o sufixo correto com base no modo selecionado
-    return 8'h00;
+    begin
+      unique case (mode_i)
+        MODE_SHA3_256,
+        MODE_SHA3_512: get_domain_pad_byte = 8'h06;
+        MODE_SHAKE128,
+        MODE_SHAKE256: get_domain_pad_byte = 8'h1F;
+        default:       get_domain_pad_byte = 8'h00;
+      endcase
+    end
   endfunction : get_domain_pad_byte
 
   // Função 4: Retorna a largura do Rate (r em bits) baseado no modo selecionado.
@@ -421,34 +455,70 @@ module mlkem_keccak_engine
   function automatic logic [11:0] get_rate_width(
     input keccak_mode_e mode_i
   );
-    // SHAKE128: r = 1344 bits (c = 256)
-    // SHAKE256: r = 1088 bits (c = 512)
-    // SHA3-256: r = 1088 bits (c = 512)
-    // SHA3-512: r = 576 bits  (c = 1024)
-    // TODO: Implementar mapeamento de taxa r
-    return 12'd0;
+    begin
+      unique case (mode_i)
+        MODE_SHA3_512: get_rate_width = 12'd576;
+        MODE_SHAKE128: get_rate_width = 12'd1344;
+        MODE_SHA3_256,
+        MODE_SHAKE256: get_rate_width = 12'd1088;
+        default:       get_rate_width = 12'd1088;
+      endcase
+    end
   endfunction : get_rate_width
 
-  // Função 5: Zeroização segura do estado interno (Requisito FIPS 203 3.3)
-  function automatic logic [1599:0] keccak_state_zeroize();
-    // TODO: Forçar limpezas síncronas para apagar resíduos de sementes e chaves
-    return 1600'h0;
-  endfunction : keccak_state_zeroize
+  // Converte a taxa de bits para bytes; todos os modos suportados possuem
+  // taxa múltipla de 8 bits.
+  function automatic logic [7:0] get_rate_bytes(
+    input keccak_mode_e mode_i
+  );
+    begin
+      get_rate_bytes = get_rate_width(mode_i) >> 3;
+    end
+  endfunction : get_rate_bytes
 
+  // Define quantos bytes o comando SQUEEZE atual deve entregar. SHA3 possui
+  // digest fixo; SHAKE é XOF e libera um bloco de rate por comando.
+  function automatic logic [7:0] get_squeeze_limit(
+    input keccak_mode_e mode_i
+  );
+    begin
+      unique case (mode_i)
+        MODE_SHA3_256: get_squeeze_limit = SHA3_256_BYTES[7:0];
+        MODE_SHA3_512: get_squeeze_limit = SHA3_512_BYTES[7:0];
+        default:       get_squeeze_limit = SHAKE_BLOCK_OUT[7:0];
+      endcase
+    end
+  endfunction : get_squeeze_limit
+
+  // Normaliza data_in_bytes_i. Como o campo possui 3 bits, o valor 0 é usado
+  // para representar 8 bytes válidos em uma palavra cheia.
+  function automatic logic [3:0] valid_input_bytes(
+    input logic [2:0] encoded_bytes_i
+  );
+    begin
+      // A interface histórica usa 3 bits; valor 0 codifica palavra cheia (8 B).
+      valid_input_bytes = (encoded_bytes_i == 3'd0) ? 4'd8 : {1'b0, encoded_bytes_i};
+    end
+  endfunction : valid_input_bytes
+
+  // Função 5: Zeroização segura do estado interno (Requisito FIPS 203 §3.3).
+  // Apaga resíduos de sementes, chaves derivadas e material pseudoaleatório.
+  function automatic logic [1599:0] keccak_state_zeroize();
+    begin
+      keccak_state_zeroize = 1600'h0;
+    end
+  endfunction : keccak_state_zeroize
 
   // --------------------------------------------------------------------------
   // Instanciação do Núcleo da Permutação Keccak-f[1600] (Submódulo)
   // --------------------------------------------------------------------------
-  logic [1599:0] perm_state_out_s;
-
   keccak_f1600_round_core u_keccak_round (
     .clk_i          (clk_i),
     .rst_ni         (rst_ni),
     .state_i        (keccak_state_q),
     .round_number_i (round_cnt_q),
     .state_o        (perm_state_out_s)
-  ); // TODO: Verificar temporização e pipeline da permutação
-
+  );
 
   // --------------------------------------------------------------------------
   // Registradores sequenciais da FSM e do estado criptográfico
