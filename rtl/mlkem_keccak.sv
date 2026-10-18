@@ -161,25 +161,63 @@ endpackage : mlkem_keccak_pkg
 // ============================================================================
 // Submódulo 1: Etapa Theta (FIPS 202 §3.2.1)
 // ============================================================================
-module keccak_step_theta (
+module keccak_step_theta
+  import mlkem_keccak_pkg::*;
+(
   input  logic [1599:0] state_in_i,   // Estado interno de entrada (1600 bits)
   output logic [1599:0] state_out_o   // Estado transformado após difusão Theta
 );
-  // TODO: Implementar cálculo das paridades das colunas C[x] e D[x]
-  // TODO: XOR das paridades vizinhas em cada lane do estado A[x,y,z]
-  assign state_out_o = '0; // TODO: Substituir por lógica combinacional
+  logic [63:0] a [0:4][0:4];
+  logic [63:0] c [0:4];
+  logic [63:0] d [0:4];
+
+  always_comb begin
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
+        a[x][y] = state_in_i[64 * (x + (5 * y)) +: 64];
+      end
+    end
+
+    // A[x,y] é interpretado como uma matriz 5x5 de lanes de 64 bits.
+    // Theta calcula as paridades C[x] de cada coluna e gera D[x] a partir
+    // das colunas vizinhas. Cada lane da coluna x recebe XOR com D[x],
+    // espalhando informação por todo o estado antes das rotações.
+    for (int x = 0; x < 5; x++) begin
+      c[x] = a[x][0] ^ a[x][1] ^ a[x][2] ^ a[x][3] ^ a[x][4];
+    end
+    for (int x = 0; x < 5; x++) begin
+      d[x] = c[(x + 4) % 5] ^ keccak_rotl64(c[(x + 1) % 5], 1);
+    end
+
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
+        state_out_o[64 * (x + (5 * y)) +: 64] = a[x][y] ^ d[x];
+      end
+    end
+  end
 endmodule : keccak_step_theta
 
 
 // ============================================================================
 // Submódulo 2: Etapa Rho (FIPS 202 §3.2.2)
 // ============================================================================
-module keccak_step_rho (
+module keccak_step_rho
+  import mlkem_keccak_pkg::*;
+(
   input  logic [1599:0] state_in_i,   // Estado interno de entrada
   output logic [1599:0] state_out_o   // Estado transformado após rotações de bits
 );
-  // TODO: Implementar rotação de bits por lane conforme Tabela 2 do FIPS 202
-  assign state_out_o = '0; // TODO: Substituir por mapa de rotações
+  always_comb begin
+    // Rho preserva a posição das lanes e rotaciona os bits internos de cada
+    // lane. Os deslocamentos são fixos e vêm diretamente da Tabela 2 da FIPS 202.
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
+        state_out_o[64 * (x + (5 * y)) +: 64] =
+          keccak_rotl64(state_in_i[64 * (x + (5 * y)) +: 64],
+                        keccak_rho_offset(x, y));
+      end
+    end
+  end
 endmodule : keccak_step_rho
 
 
@@ -190,8 +228,17 @@ module keccak_step_pi (
   input  logic [1599:0] state_in_i,   // Estado interno de entrada
   output logic [1599:0] state_out_o   // Estado transformado após permutação de posições
 );
-  // TODO: Reorganizar posições das lanes A[x,y] -> A[y, 2x+3y mod 5]
-  assign state_out_o = '0; // TODO: Substituir por permutação de fiação
+  always_comb begin
+    state_out_o = '0;
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
+        // Pi reorganiza as posições das lanes sem alterar seus bits internos:
+        // A[x,y] -> B[y, (2*x + 3*y) mod 5].
+        state_out_o[64 * (y + (5 * ((2 * x + 3 * y) % 5))) +: 64] =
+          state_in_i[64 * (x + (5 * y)) +: 64];
+      end
+    end
+  end
 endmodule : keccak_step_pi
 
 
@@ -202,21 +249,42 @@ module keccak_step_chi (
   input  logic [1599:0] state_in_i,   // Estado interno de entrada
   output logic [1599:0] state_out_o   // Estado transformado após não-linearidade NOT/AND/XOR
 );
-  // TODO: Aplicar transformação não-linear A[x] ^ ((~A[x+1]) & A[x+2]) por linha
-  assign state_out_o = '0; // TODO: Substituir por portas não-lineares
+  logic [63:0] a [0:4][0:4];
+
+  always_comb begin
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
+        a[x][y] = state_in_i[64 * (x + (5 * y)) +: 64];
+      end
+    end
+
+    // Chi é a única etapa não linear da rodada Keccak. A transformação é
+    // aplicada linha a linha: A[x,y] ^ ((~A[x+1,y]) & A[x+2,y]).
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
+        state_out_o[64 * (x + (5 * y)) +: 64] =
+          a[x][y] ^ ((~a[(x + 1) % 5][y]) & a[(x + 2) % 5][y]);
+      end
+    end
+  end
 endmodule : keccak_step_chi
 
 
 // ============================================================================
 // Submódulo 5: Etapa Iota (FIPS 202 §3.2.5)
 // ============================================================================
-module keccak_step_iota (
+module keccak_step_iota
+  import mlkem_keccak_pkg::*;
+(
   input  logic [1599:0] state_in_i,    // Estado interno de entrada
   input  logic [4:0]    round_idx_i,   // Índice da rodada atual (0 a 23)
   output logic [1599:0] state_out_o    // Estado transformado após injeção da constante RC
 );
-  // TODO: Adicionar constante de rodada RC[i_r] ao lane (0,0) do estado
-  assign state_out_o = '0; // TODO: Substituir por injeção de constante
+  always_comb begin
+    // Iota quebra simetrias entre rodadas injetando RC[i_r] somente em A[0,0].
+    state_out_o = state_in_i;
+    state_out_o[63:0] = state_in_i[63:0] ^ keccak_round_constant(round_idx_i);
+  end
 endmodule : keccak_step_iota
 
 
