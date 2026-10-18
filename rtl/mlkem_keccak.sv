@@ -296,25 +296,26 @@ module keccak_f1600_round_core (
   input  logic          rst_ni,
   input  logic [1599:0] state_i,       // Estado atual
   input  logic [4:0]    round_number_i,// Número da rodada
-  output logic [1599:0] state_o        // Estado após 1 rodada R = iota o chi o pi o rho o theta
+  output logic [1599:0] state_o        // Estado após 1 rodada R = ι o χ o π o ρ o θ
 );
-
-  // Instanciações encadeadas das 5 etapas da rodada Keccak
   logic [1599:0] state_theta;
   logic [1599:0] state_rho;
   logic [1599:0] state_pi;
   logic [1599:0] state_chi;
   logic [1599:0] state_iota;
 
-  // Declaração e Conexão dos Submódulos das Etapas (FIPS 202)
-  keccak_step_theta u_theta (.state_in_i(state_i),     .state_out_o(state_theta)); // TODO: Validar conexão
-  keccak_step_rho   u_rho   (.state_in_i(state_theta), .state_out_o(state_rho));   // TODO: Validar conexão
-  keccak_step_pi    u_pi    (.state_in_i(state_rho),   .state_out_o(state_pi));    // TODO: Validar conexão
-  keccak_step_chi   u_chi   (.state_in_i(state_pi),    .state_out_o(state_chi));   // TODO: Validar conexão
-  keccak_step_iota  u_iota  (.state_in_i(state_chi),   .round_idx_i(round_number_i), .state_out_o(state_iota)); // TODO: Validar conexão
+  // Interface pronta para futura pipeline; a rodada atual é combinacional.
+  logic unused_seq_inputs;
+  assign unused_seq_inputs = clk_i ^ rst_ni;
+
+  // Encadeamento exato das cinco etapas de rodada da FIPS 202.
+  keccak_step_theta u_theta (.state_in_i(state_i),     .state_out_o(state_theta));
+  keccak_step_rho   u_rho   (.state_in_i(state_theta), .state_out_o(state_rho));
+  keccak_step_pi    u_pi    (.state_in_i(state_rho),   .state_out_o(state_pi));
+  keccak_step_chi   u_chi   (.state_in_i(state_pi),    .state_out_o(state_chi));
+  keccak_step_iota  u_iota  (.state_in_i(state_chi),   .round_idx_i(round_number_i), .state_out_o(state_iota));
 
   assign state_o = state_iota;
-
 endmodule : keccak_f1600_round_core
 
 
