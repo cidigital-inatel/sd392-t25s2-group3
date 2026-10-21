@@ -525,17 +525,41 @@ module mlkem_keccak_engine
   // --------------------------------------------------------------------------
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q        <= ST_IDLE;
-      keccak_state_q <= '0;
-      round_cnt_q    <= '0;
+      state_q         <= ST_IDLE;
+      keccak_state_q  <= '0;
+      round_cnt_q     <= '0;
+      absorb_pos_q    <= '0;
+      squeeze_pos_q   <= '0;
+      squeeze_limit_q <= '0;
+      mode_q          <= MODE_SHA3_256;
+      perm_return_q   <= RET_DONE;
+      pending_valid_q <= 1'b0;
+      pending_mode_q  <= MODE_SHA3_256;
+      pending_cmd_q   <= CMD_INIT;
     end else if (zeroize_i) begin
-      state_q        <= ST_ZEROIZE;
-      keccak_state_q <= keccak_state_zeroize(); // TODO: Aplicar zeroização completa
-      round_cnt_q    <= '0;
+      state_q         <= ST_ZEROIZE;
+      keccak_state_q  <= keccak_state_zeroize();
+      round_cnt_q     <= '0;
+      absorb_pos_q    <= '0;
+      squeeze_pos_q   <= '0;
+      squeeze_limit_q <= '0;
+      mode_q          <= MODE_SHA3_256;
+      perm_return_q   <= RET_DONE;
+      pending_valid_q <= 1'b0;
+      pending_mode_q  <= MODE_SHA3_256;
+      pending_cmd_q   <= CMD_INIT;
     end else begin
-      state_q        <= state_d;
-      keccak_state_q <= keccak_state_d;
-      round_cnt_q    <= round_cnt_d;
+      state_q         <= state_d;
+      keccak_state_q  <= keccak_state_d;
+      round_cnt_q     <= round_cnt_d;
+      absorb_pos_q    <= absorb_pos_d;
+      squeeze_pos_q   <= squeeze_pos_d;
+      squeeze_limit_q <= squeeze_limit_d;
+      mode_q          <= mode_d;
+      perm_return_q   <= perm_return_d;
+      pending_valid_q <= pending_valid_d;
+      pending_mode_q  <= pending_mode_d;
+      pending_cmd_q   <= pending_cmd_d;
     end
   end
 
@@ -543,11 +567,28 @@ module mlkem_keccak_engine
   // Lógica Combinacional de Transição de Estados e Controle da Esponja
   // --------------------------------------------------------------------------
   always_comb begin
-    // Valores padrão para evitar latches
+    logic [1599:0] state_work_v;
+    logic [7:0]    rate_bytes_v;
+    logic [7:0]    byte_pos_v;
+    logic [3:0]    in_bytes_v;
+    logic [7:0]    out_byte_v;
+    logic          block_full_v;
+    logic          cmd_fire_v;
+    keccak_mode_e  cmd_mode_v;
+    keccak_cmd_e   cmd_sel_v;
+
     state_d         = state_q;
     keccak_state_d  = keccak_state_q;
     round_cnt_d     = round_cnt_q;
-    
+    absorb_pos_d    = absorb_pos_q;
+    squeeze_pos_d   = squeeze_pos_q;
+    squeeze_limit_d = squeeze_limit_q;
+    mode_d          = mode_q;
+    perm_return_d   = perm_return_q;
+    pending_valid_d = pending_valid_q;
+    pending_mode_d  = pending_mode_q;
+    pending_cmd_d   = pending_cmd_q;
+
     data_in_ready_o  = 1'b0;
     data_out_o       = '0;
     data_out_valid_o = 1'b0;
@@ -557,17 +598,79 @@ module mlkem_keccak_engine
     done_o           = 1'b0;
     error_o          = 1'b0;
 
-    case (state_q)
+    state_work_v = keccak_state_q;
+    rate_bytes_v = get_rate_bytes(mode_q);
+    byte_pos_v   = absorb_pos_q;
+    in_bytes_v   = valid_input_bytes(data_in_bytes_i);
+    out_byte_v   = '0;
+    block_full_v = 1'b0;
+    cmd_fire_v   = start_i;
+    cmd_mode_v   = mode_i;
+    cmd_sel_v    = cmd_i;
+
+    // Fila de um comando: preserva pulsos start_i recebidos enquanto a
+    // permutação ainda está em andamento. Isso evita perder comandos curtos
+    // vindos de CSRs simples enquanto ST_PERMUTE executa as 24 rodadas.
+    if ((state_q != ST_IDLE) && start_i) begin
+      if (!pending_valid_q) begin
+        pending_valid_d = 1'b1;
+        pending_mode_d  = mode_i;
+        pending_cmd_d   = cmd_i;
+      end else begin
+        error_o = 1'b1;
+      end
+    end
+
+    if ((state_q == ST_IDLE) && pending_valid_q) begin
+      cmd_fire_v      = 1'b1;
+      cmd_mode_v      = pending_mode_q;
+      cmd_sel_v       = pending_cmd_q;
+      pending_valid_d = 1'b0;
+    end
+
+    unique case (state_q)
       ST_IDLE: begin
         ready_o = 1'b1;
         busy_o  = 1'b0;
-        if (start_i) begin
-          case (cmd_i)
-            CMD_INIT:    state_d = ST_IDLE;    // TODO: Resetar apenas o estado Keccak
-            CMD_ABSORB:  state_d = ST_ABSORB;  // TODO: Iniciar absorção de bloco
-            CMD_FINISH:  state_d = ST_PADDING; // TODO: Ir para padding pad10*1
-            CMD_SQUEEZE: state_d = ST_SQUEEZE; // TODO: Iniciar extração de palavras
-            default:     state_d = ST_IDLE;
+
+        if (cmd_fire_v) begin
+          mode_d = cmd_mode_v;
+          unique case (cmd_sel_v)
+            CMD_INIT: begin
+              // Reinicializa somente o contexto Keccak selecionado.
+              keccak_state_d  = keccak_state_zeroize();
+              absorb_pos_d    = '0;
+              squeeze_pos_d   = '0;
+              squeeze_limit_d = get_squeeze_limit(cmd_mode_v);
+              round_cnt_d     = '0;
+              perm_return_d   = RET_DONE;
+              state_d         = ST_DONE;
+            end
+
+            CMD_ABSORB: begin
+              // Inicia/continua a fase de absorção do sponge. O modo fica
+              // travado em mode_q para que FINISH/SQUEEZE usem o mesmo contexto.
+              squeeze_pos_d   = '0;
+              squeeze_limit_d = get_squeeze_limit(cmd_mode_v);
+              state_d         = ST_ABSORB;
+            end
+
+            CMD_FINISH: begin
+              // Finaliza a mensagem atual aplicando domínio + pad10*1.
+              state_d       = ST_PADDING;
+              perm_return_d = RET_DONE;
+            end
+
+            CMD_SQUEEZE: begin
+              // Extrai digest fixo (SHA3) ou um bloco XOF (SHAKE).
+              squeeze_limit_d = get_squeeze_limit(cmd_mode_v);
+              state_d         = ST_SQUEEZE;
+            end
+
+            default: begin
+              error_o = 1'b1;
+              state_d = ST_IDLE;
+            end
           endcase
         end
       end
@@ -576,43 +679,129 @@ module mlkem_keccak_engine
         // Sinaliza que o motor está pronto para receber palavras de dados
         // enquanto houver espaço na porção rate do estado.
         data_in_ready_o = 1'b1;
-        
-        // TODO: Executar XOR do data_in_i no segmento de Rate r do keccak_state_q
-        // TODO: Avançar para ST_PERMUTE quando um bloco completo de tamanho r for absorvido
-        if (data_in_valid_i && data_in_ready_o) begin
-          if (data_in_last_i) begin
-            state_d = ST_IDLE; // Retorna para IDLE aguardando o próximo comando
+
+        if (data_in_valid_i) begin
+          if (in_bytes_v > DATA_BYTES[3:0]) begin
+            error_o = 1'b1;
+          end else begin
+            // Absorção little-endian: cada byte de entrada é aplicado por XOR
+            // no segmento Rate r do estado, conforme a construção sponge.
+            state_work_v = keccak_state_q;
+            byte_pos_v   = absorb_pos_q;
+            block_full_v = 1'b0;
+
+            for (int b = 0; b < DATA_BYTES; b++) begin
+              if (b < in_bytes_v) begin
+                if (byte_pos_v < rate_bytes_v) begin
+                  state_work_v[8 * byte_pos_v +: 8] =
+                    state_work_v[8 * byte_pos_v +: 8] ^ data_in_i[8 * b +: 8];
+                  byte_pos_v = byte_pos_v + 8'd1;
+                end else begin
+                  error_o = 1'b1;
+                end
+              end
+            end
+
+            keccak_state_d = state_work_v;
+            absorb_pos_d   = byte_pos_v;
+
+            if (byte_pos_v == rate_bytes_v) begin
+              block_full_v = 1'b1;
+            end
+
+            if (block_full_v) begin
+              // Mesmo quando a última palavra fecha exatamente o bloco rate,
+              // a FIPS 202 exige permutar esse bloco antes do padding vazio.
+              state_d       = ST_PERMUTE;
+              round_cnt_d   = '0;
+              absorb_pos_d  = '0;
+              perm_return_d = data_in_last_i ? RET_DONE : RET_ABSORB;
+            end else if (data_in_last_i) begin
+              state_d = ST_IDLE;
+            end
           end
         end
       end
 
       ST_PADDING: begin
-        // TODO: Aplicar o sufixo de domínio (get_domain_pad_byte) e o bit final de pad10*1 no limite da taxa r
-        // TODO: Transicionar para ST_PERMUTE para rodar as 24 rodadas finais da absorção
-        state_d = ST_DONE; // Simula conclusão do bloco de padding no stub
+        state_work_v = keccak_state_q;
+        rate_bytes_v = get_rate_bytes(mode_q);
+
+        if (absorb_pos_q < rate_bytes_v) begin
+          // Padding multi-rate pad10*1 com separação de domínio:
+          // 1) XOR do sufixo SHA3/SHAKE no primeiro byte livre da mensagem;
+          // 2) XOR de 0x80 no último byte do bloco rate, inserindo o bit final.
+          state_work_v[8 * absorb_pos_q +: 8] =
+            state_work_v[8 * absorb_pos_q +: 8] ^ get_domain_pad_byte(mode_q);
+          state_work_v[8 * (rate_bytes_v - 8'd1) +: 8] =
+            state_work_v[8 * (rate_bytes_v - 8'd1) +: 8] ^ 8'h80;
+
+          keccak_state_d = state_work_v;
+          absorb_pos_d   = '0;
+          round_cnt_d    = '0;
+          perm_return_d  = RET_DONE;
+          state_d        = ST_PERMUTE;
+        end else begin
+          error_o = 1'b1;
+          state_d = ST_DONE;
+        end
       end
 
       ST_PERMUTE: begin
-        // TODO: Iterar round_cnt_q de 0 a 23 usando perm_state_out_s
-        // TODO: Após 24 rodadas, transicionar para ST_IDLE, ST_SQUEEZE ou ST_DONE
-        state_d = ST_DONE;
+        // Uma rodada Keccak-f[1600] por ciclo, totalizando 24 rodadas.
+        keccak_state_d = perm_state_out_s;
+
+        if (round_cnt_q == (KECCAK_ROUNDS - 1)) begin
+          round_cnt_d = '0;
+          unique case (perm_return_q)
+            RET_ABSORB:  state_d = ST_ABSORB;
+            RET_SQUEEZE: state_d = ST_SQUEEZE;
+            default:     state_d = ST_DONE;
+          endcase
+        end else begin
+          round_cnt_d = round_cnt_q + 5'd1;
+        end
       end
 
       ST_SQUEEZE: begin
-        // TODO: Fornecer palavras de DATA_WIDTH a partir da parte r do estado keccak_state_q
-        // TODO: Se mais bytes forem requisitados além da taxa r, disparar nova permutação ST_PERMUTE (XOF/Squeeze)
+        rate_bytes_v     = get_rate_bytes(mode_q);
         data_out_valid_o = 1'b1;
-        data_out_o       = 64'hA5A5A5A5A5A5A5A5; // Valor fictício para teste de extração no stub
-        
+
+        // Extração little-endian da parte rate do estado. SHA3 encerra no
+        // tamanho fixo do digest; SHAKE pode continuar com novas permutações.
+        for (int b = 0; b < DATA_BYTES; b++) begin
+          out_byte_v = squeeze_pos_q + b[7:0];
+          if ((out_byte_v < squeeze_limit_q) && (out_byte_v < rate_bytes_v)) begin
+            data_out_o[8 * b +: 8] = keccak_state_q[8 * out_byte_v +: 8];
+          end
+        end
+
         if (data_out_ready_i) begin
-          data_out_last_o = 1'b1;
-          state_d         = ST_DONE;
+          if ((squeeze_pos_q + DATA_BYTES[7:0]) >= squeeze_limit_q) begin
+            data_out_last_o = 1'b1;
+            squeeze_pos_d   = '0;
+            state_d         = ST_DONE;
+          end else if ((squeeze_pos_q + DATA_BYTES[7:0]) >= rate_bytes_v) begin
+            squeeze_pos_d   = '0;
+            round_cnt_d     = '0;
+            perm_return_d   = RET_SQUEEZE;
+            state_d         = ST_PERMUTE;
+          end else begin
+            squeeze_pos_d = squeeze_pos_q + DATA_BYTES[7:0];
+          end
         end
       end
 
       ST_ZEROIZE: begin
-        // TODO: Limpar buffers e retornar para ST_IDLE
-        state_d = ST_IDLE;
+        // Zeroização de segurança: limpa estado Keccak, offsets e controles
+        // que possam reter material sensível após uma operação ML-KEM.
+        keccak_state_d  = keccak_state_zeroize();
+        absorb_pos_d    = '0;
+        squeeze_pos_d   = '0;
+        squeeze_limit_d = '0;
+        round_cnt_d     = '0;
+        perm_return_d   = RET_DONE;
+        state_d         = ST_IDLE;
       end
 
       ST_DONE: begin
@@ -621,7 +810,10 @@ module mlkem_keccak_engine
         state_d = ST_IDLE;
       end
 
-      default: state_d = ST_IDLE;
+      default: begin
+        error_o = 1'b1;
+        state_d = ST_IDLE;
+      end
     endcase
   end
 
