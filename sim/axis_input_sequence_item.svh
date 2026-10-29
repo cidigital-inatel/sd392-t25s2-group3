@@ -21,6 +21,7 @@ class axis_input_sequence_item extends uvm_sequence_item;
     rand bit [TB_AXIS_INPUT_TKEEP_WIDTH-1:0] keep;
     rand bit [TB_AXIS_INPUT_TKEEP_WIDTH-1:0] strb;
     rand bit [TB_AXIS_INPUT_TUSER_WIDTH-1:0] user;
+    int unsigned stall_cycles;
 
     constraint strb_is_subset_of_keep {
         (strb & ~keep) == '0;
@@ -32,6 +33,7 @@ class axis_input_sequence_item extends uvm_sequence_item;
         `uvm_field_int(keep, UVM_DEFAULT)
         `uvm_field_int(strb, UVM_DEFAULT)
         `uvm_field_int(user, UVM_DEFAULT)
+        `uvm_field_int(stall_cycles, UVM_DEFAULT)
     `uvm_object_utils_end
 
     function new(string name = "axis_input_sequence_item");
@@ -41,6 +43,7 @@ class axis_input_sequence_item extends uvm_sequence_item;
         keep = '1;
         strb = '1;
         user = '0;
+        stall_cycles = 0;
     endfunction
 endclass
 

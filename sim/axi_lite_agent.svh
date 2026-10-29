@@ -7,6 +7,7 @@ class axi_lite_agent extends uvm_agent;
     axi_lite_sequencer sequencer_h;
     axi_lite_driver driver_h;
     axi_lite_monitor monitor_h;
+    axi_lite_coverage coverage_h;
     virtual axi_lite_bfm #(
         .ADDR_WIDTH(TB_AXI_LITE_ADDR_WIDTH),
         .DATA_WIDTH(TB_AXI_LITE_DATA_WIDTH)
@@ -25,6 +26,7 @@ class axi_lite_agent extends uvm_agent;
             `uvm_fatal("AXI_LITE_AGENT/NOVIF", "Nenhuma interface virtual AXI4-Lite foi configurada")
 
         monitor_h = axi_lite_monitor::type_id::create("monitor_h", this);
+        coverage_h = axi_lite_coverage::type_id::create("coverage_h", this);
         uvm_config_db#(virtual axi_lite_bfm #(
             .ADDR_WIDTH(TB_AXI_LITE_ADDR_WIDTH),
             .DATA_WIDTH(TB_AXI_LITE_DATA_WIDTH)
@@ -42,6 +44,7 @@ class axi_lite_agent extends uvm_agent;
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
+        monitor_h.observed_ap.connect(coverage_h.analysis_export);
         if (get_is_active() == UVM_ACTIVE)
             driver_h.seq_item_port.connect(sequencer_h.seq_item_export);
     endfunction

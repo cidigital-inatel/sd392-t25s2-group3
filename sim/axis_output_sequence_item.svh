@@ -6,6 +6,7 @@ class axis_output_sequence_item extends uvm_sequence_item;
     rand int unsigned cycles;
     bit [TB_AXIS_OUTPUT_TDATA_WIDTH-1:0] data;
     bit last;
+    int unsigned stall_cycles;
 
     constraint cycles_positive {
         cycles > 0;
@@ -16,6 +17,7 @@ class axis_output_sequence_item extends uvm_sequence_item;
         `uvm_field_int(cycles, UVM_DEFAULT)
         `uvm_field_int(data, UVM_DEFAULT)
         `uvm_field_int(last, UVM_DEFAULT)
+        `uvm_field_int(stall_cycles, UVM_DEFAULT)
     `uvm_object_utils_end
 
     function new(string name = "axis_output_sequence_item");
@@ -24,6 +26,7 @@ class axis_output_sequence_item extends uvm_sequence_item;
         cycles = 1;
         data = '0;
         last = 1'b0;
+        stall_cycles = 0;
     endfunction
 endclass
 

@@ -24,10 +24,14 @@ class axis_output_monitor extends uvm_component;
 
     task run_phase(uvm_phase phase);
         axis_output_sequence_item tr;
+        int unsigned pending_stall_cycles = 0;
+
         forever begin
             @(posedge vif.ACLK);
-            if (vif.reset_is_asserted())
+            if (vif.reset_is_asserted()) begin
+                pending_stall_cycles = 0;
                 continue;
+            end
 
             if (vif.TVALID === 1'b1 && vif.TREADY === 1'b1) begin
                 tr = axis_output_sequence_item::type_id::create("observed_beat");
@@ -35,7 +39,11 @@ class axis_output_monitor extends uvm_component;
                 tr.last = vif.TLAST;
                 tr.ready = vif.TREADY;
                 tr.cycles = 1;
+                tr.stall_cycles = pending_stall_cycles;
                 observed_ap.write(tr);
+                pending_stall_cycles = 0;
+            end else if (vif.TVALID === 1'b1 && vif.TREADY === 1'b0) begin
+                pending_stall_cycles++;
             end
         end
     endtask

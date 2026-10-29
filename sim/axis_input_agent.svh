@@ -7,6 +7,7 @@ class axis_input_agent extends uvm_agent;
     axis_input_sequencer sequencer_h;
     axis_input_driver driver_h;
     axis_input_monitor monitor_h;
+    axis_input_coverage coverage_h;
     virtual axis_input_bfm #(
         .TDATA_WIDTH(TB_AXIS_INPUT_TDATA_WIDTH),
         .TUSER_WIDTH(TB_AXIS_INPUT_TUSER_WIDTH)
@@ -25,6 +26,7 @@ class axis_input_agent extends uvm_agent;
             `uvm_fatal("AXIS_INPUT_AGENT/NOVIF", "Nenhuma interface virtual AXI4-Stream de entrada foi configurada")
 
         monitor_h = axis_input_monitor::type_id::create("monitor_h", this);
+        coverage_h = axis_input_coverage::type_id::create("coverage_h", this);
         uvm_config_db#(virtual axis_input_bfm #(
             .TDATA_WIDTH(TB_AXIS_INPUT_TDATA_WIDTH),
             .TUSER_WIDTH(TB_AXIS_INPUT_TUSER_WIDTH)
@@ -42,6 +44,7 @@ class axis_input_agent extends uvm_agent;
 
     function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
+        monitor_h.observed_ap.connect(coverage_h.analysis_export);
         if (get_is_active() == UVM_ACTIVE)
             driver_h.seq_item_port.connect(sequencer_h.seq_item_export);
     endfunction
