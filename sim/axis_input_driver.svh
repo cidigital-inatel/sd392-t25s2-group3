@@ -8,9 +8,11 @@ class axis_input_driver extends uvm_driver #(axis_input_sequence_item);
         .TDATA_WIDTH(TB_AXIS_INPUT_TDATA_WIDTH),
         .TUSER_WIDTH(TB_AXIS_INPUT_TUSER_WIDTH)
     ) vif;
+    uvm_analysis_port #(axis_input_sequence_item) expected_ap;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
+        expected_ap = new("expected_ap", this);
     endfunction
 
     function void build_phase(uvm_phase phase);
@@ -24,8 +26,12 @@ class axis_input_driver extends uvm_driver #(axis_input_sequence_item);
 
     task run_phase(uvm_phase phase);
         axis_input_sequence_item req;
+        axis_input_sequence_item expected;
         forever begin
             seq_item_port.get_next_item(req);
+            if (!$cast(expected, req.clone()))
+                `uvm_fatal("AXIS_INPUT_DRV/CLONE", "Falha ao copiar beat esperado")
+            expected_ap.write(expected);
             vif.send_beat(req.data, req.last, req.user, req.keep, req.strb);
 
             // Saída de informações detalhadas sobre o beat enviado, incluindo TDATA, TLAST, TKEEP, TSTRB e TUSER

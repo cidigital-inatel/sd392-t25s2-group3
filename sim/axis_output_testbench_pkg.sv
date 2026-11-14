@@ -11,6 +11,7 @@ package axis_output_testbench_pkg;
     `include "axis_output_driver.svh"
     `include "axis_output_monitor.svh"
     `include "axis_output_coverage.svh"
+    `include "axis_output_scoreboard.svh"
     `include "axis_output_agent.svh"
     `include "axis_output_smoke_sequence.svh"
     `include "axis_output_smoke_test.svh"

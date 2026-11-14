@@ -10,6 +10,7 @@ package axi_lite_testbench_pkg;
     `include "axi_lite_driver.svh"
     `include "axi_lite_monitor.svh"
     `include "axi_lite_coverage.svh"
+    `include "axi_lite_scoreboard.svh"
     `include "axi_lite_agent.svh"
     `include "environment_axi.svh"
     `include "axi_lite_smoke_sequence.svh"

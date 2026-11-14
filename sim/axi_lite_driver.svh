@@ -29,9 +29,14 @@ class axi_lite_driver extends uvm_driver #(axi_lite_sequence_item);
 
     task run_phase(uvm_phase phase);
         axi_lite_sequence_item req;
+        axi_lite_sequence_item expected;
         forever begin
             seq_item_port.get_next_item(req);
             if (protocol_drive_enable) begin
+                if (!$cast(expected, req.clone()))
+                    `uvm_fatal("AXI_LITE_DRV/CLONE", "Falha ao copiar transacao esperada")
+                expected_ap.write(expected);
+
                 case (req.operation)
                     AXI_LITE_WRITE: begin
                         vif.write_reg(req.address, req.write_data, req.response);
@@ -48,7 +53,6 @@ class axi_lite_driver extends uvm_driver #(axi_lite_sequence_item);
                                   UVM_HIGH)
                     end
                 endcase
-                expected_ap.write(req);
             end
             seq_item_port.item_done();
         end

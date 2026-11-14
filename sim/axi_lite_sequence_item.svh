@@ -27,6 +27,11 @@ class axi_lite_sequence_item extends uvm_sequence_item;
     function new(string name = "axi_lite_sequence_item");
         super.new(name);
         operation = AXI_LITE_WRITE;
+        address = '0;
+        write_data = '0;
+        expected_read_data = '0;
+        read_data = '0;
+        response = 2'b00;
     endfunction
 endclass
 

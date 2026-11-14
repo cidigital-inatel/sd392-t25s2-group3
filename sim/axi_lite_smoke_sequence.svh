@@ -25,6 +25,8 @@ class axi_lite_smoke_sequence extends uvm_sequence #(axi_lite_sequence_item);
         start_item(item);
         item.operation = AXI_LITE_READ;
         item.address = TEST_ADDRESS;
+        item.expected_read_data = TEST_DATA;
+        item.response = 2'b00;
         finish_item(item);
     endtask
 endclass

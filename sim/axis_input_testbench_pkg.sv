@@ -13,6 +13,7 @@ package axis_input_testbench_pkg;
     `include "axis_input_driver.svh"
     `include "axis_input_monitor.svh"
     `include "axis_input_coverage.svh"
+    `include "axis_input_scoreboard.svh"
     `include "axis_input_agent.svh"
     `include "axis_input_smoke_sequence.svh"
     `include "axis_input_smoke_test.svh"
